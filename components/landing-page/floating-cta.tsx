@@ -39,7 +39,7 @@ export function FloatingCta() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed bottom-6 right-6 z-50 max-w-sm"
+          className="fixed bottom-6 hidden md:block right-6 z-50 max-w-sm"
         >
           <div className="relative rounded-lg border border-purple-500/20 bg-black/90 p-4 shadow-[0_0_30px_rgba(168,85,247,0.25)] backdrop-blur-sm">
             <button
@@ -49,9 +49,9 @@ export function FloatingCta() {
               <X className="h-4 w-4" />
             </button>
 
-            <div className="mb-3 text-lg font-bold text-white">Ready to create your first song?</div>
+            <div className="mb-3 text-lg font-bold text-white">Ready to create your first Story?</div>
             <p className="mb-4 text-sm text-white/70">
-              Join thousands of creators who are already making AI-generated music.
+              Join thousands of creators who are already making mind-blowing stories.
             </p>
 
             <div className="flex items-center gap-3">
