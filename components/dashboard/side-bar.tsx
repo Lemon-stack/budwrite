@@ -24,17 +24,17 @@ const navItems = [
   {
     title: "Home",
     icon: Home,
-    href: "dashboard",
+    href: "/dashboard",
   },
   {
     title: "Favorites",
     icon: Star,
-    href: "favorites",
+    href: "/dashboard/favorites",
   },
   {
     title: "Settings",
     icon: Settings,
-    href: "settings",
+    href: "/dashboard/settings",
   },
 ]
 
