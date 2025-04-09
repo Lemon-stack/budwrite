@@ -8,7 +8,7 @@ export default function Header(){
         <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/50 backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Logo/>
+            <Logo text="text-purple-600"/>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             <Link href="#features" className="text-sm text-white/70 hover:text-white">

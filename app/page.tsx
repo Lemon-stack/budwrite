@@ -32,20 +32,21 @@ export default function LandingPage() {
 
         <div className="container relative z-10 px-4 py-32">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="mb-6 inline-flex items-center rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-sm text-purple-500">
+            {/* <div className="mb-6 inline-flex items-center rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-sm text-purple-500">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
               <span>AI-Powered Image-to-Story Conversion</span>
-            </div>
+            </div> */}
 
             <AnimatedText
-              text="Transform Your Pictures Into Captivating Stories"
-              className="mb-6 text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+              text="Transform Your Pictures Into Epic Stories"
+              className="mb-6 text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl flex items-center text-center lg:text-7xl"
               highlightWords={["Pictures", "Stories"]}
               highlightClassName="text-purple-500"
-            />
+              />
+             
 
             <p className="mb-10 text-xl text-white/70">
-              Our AI technology turns your images into engaging narratives in seconds. No writing experience required.
+            Captivating stories crafted from your images, no writing skills needed.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

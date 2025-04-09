@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ThemeSwitcher } from "../theme-switcher"
 
 export function Header() {
   return (
@@ -20,6 +21,7 @@ export function Header() {
       <Separator orientation="vertical" className="h-6" />
 
       <div className="ml-auto flex items-center gap-2">
+      <ThemeSwitcher />
         <Button variant="ghost" size="icon" className="rounded-full">
           <Bell className="h-5 w-5" />
           <span className="sr-only">Notifications</span>

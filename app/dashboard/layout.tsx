@@ -1,11 +1,13 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import DasboardSidebar from "../../components/dashboard/side-bar";
 import { Header } from "@/components/dashboard/header";
+import AuthProvider from "@/context/auth";
 
 export default function Dashboard({children}: Readonly<{
     children: React.ReactNode
   }>){
     return(
+      <AuthProvider>
         <SidebarProvider>
             <div className="flex min-h-screen w-full">
               <DasboardSidebar />
@@ -15,5 +17,6 @@ export default function Dashboard({children}: Readonly<{
               </div>
             </div>
           </SidebarProvider>
+      </AuthProvider>
     )
 }

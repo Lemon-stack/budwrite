@@ -35,7 +35,17 @@ export function AnimatedText({
   return (
     <h1 className={className}>
       <span className="sr-only">{text}</span>
-      <span aria-hidden="true" style={{ display: "flex", flexWrap: "wrap", gap: wordSpacing }}>
+      <span
+        aria-hidden="true"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: wordSpacing,
+          justifyContent: "center", // Center words horizontally
+          width: "100%", // Ensure the container takes full width
+          textAlign: "center", // Center text alignment
+        }}
+      >
         {words.map((word, index) => {
           const isHighlighted = shouldHighlight(word)
           const wordClassName = isHighlighted ? highlightClassName : ""
