@@ -5,23 +5,34 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImagePlus, Loader2, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGenerateStory } from "@/hooks/use-generate-story";
 
-export default function StoryForm() {
-  const {
-    handleSubmit,
-    handleFileSelect,
-    fileInputRef,
-    images,
-    removeImage,
-    title,
-    setTitle,
-    isSubmitting,
-  } = useGenerateStory();
+interface StoryFormProps {
+  handleSubmit: (e: React.FormEvent) => void;
+  handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  images: Array<{
+    id: string;
+    preview: string;
+  }>;
+  removeImage: (id: string) => void;
+  title: string;
+  setTitle: (title: string) => void;
+  isSubmitting: boolean;
+}
 
+export default function StoryForm({
+  handleSubmit,
+  handleFileSelect,
+  fileInputRef,
+  images,
+  removeImage,
+  title,
+  setTitle,
+  isSubmitting,
+}: StoryFormProps) {
   return (
-    <div className="fixed bottom-0 left-0 mx-auto flex items-center justify-center right-0 max-w-5xl bg-background z-10 p-4 border-t">
-      <form onSubmit={handleSubmit} className="w-full mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
+      <form onSubmit={handleSubmit} className="w-full">
         <Card>
           <CardContent className="pt-6">
             <div className="space-y-4">
