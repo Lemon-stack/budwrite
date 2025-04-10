@@ -63,14 +63,14 @@ const recentStories = [
 export default function DasboardSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader className="h-16 justify-center border-b border-sidebar-border flex items-start px-4">
+      <SidebarHeader className="h-16 z-20 justify-center border-b border-sidebar-border flex items-start px-4">
         <Logo/>
       </SidebarHeader>
       <SidebarContent>
         {/* Navigation Links */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="z-20">
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title}>

@@ -1,6 +1,35 @@
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  createContext,
+  useMemo,
+  useContext,
+} from "react";
 import { nanoid } from "nanoid";
+import { useAuth } from "@/context/auth";
+
+interface GenerateStoryContextType {
+  title: string;
+  setTitle: (title: string) => void;
+  prompt: string;
+  setPrompt: (prompt: string) => void;
+  images: UploadedImage[];
+  setImages: (images: UploadedImage[]) => void;
+  isSubmitting: boolean;
+  setIsSubmitting: (isSubmitting: boolean) => void;
+  isGenerating: boolean;
+  setIsGenerating: (isGenerating: boolean) => void;
+  generatedStory: string;
+  setGeneratedStory: (generatedStory: string) => void;
+  generationComplete: boolean;
+  setGenerationComplete: (generationComplete: boolean) => void;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+  handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  removeImage: (id: string) => void;
+  handleSubmit: (e: React.FormEvent) => Promise<void>;
+}
 
 interface UploadedImage {
   id: string;
@@ -10,7 +39,29 @@ interface UploadedImage {
   uploading: boolean;
   error?: string;
 }
-export const UseGenerateStory = () => {
+
+const GenerateStoryContext = createContext<GenerateStoryContextType>({
+  title: "",
+  setTitle: () => {},
+  prompt: "",
+  setPrompt: () => {},
+  images: [],
+  setImages: () => {},
+  isSubmitting: false,
+  setIsSubmitting: () => {},
+  isGenerating: false,
+  setIsGenerating: () => {},
+  generatedStory: "",
+  setGeneratedStory: () => {},
+  generationComplete: false,
+  setGenerationComplete: () => {},
+  fileInputRef: { current: null },
+  handleFileSelect: () => {},
+  removeImage: () => {},
+  handleSubmit: async () => {},
+});
+
+const GenerateStoryProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -19,8 +70,8 @@ export const UseGenerateStory = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedStory, setGeneratedStory] = useState("");
   const [generationComplete, setGenerationComplete] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // const { user } = useAuth();
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,16 +230,48 @@ export const UseGenerateStory = () => {
       });
     };
   }, []);
-  return {
-    isGenerating,
-    generatedStory,
-    handleSubmit,
-    handleFileSelect,
-    fileInputRef,
-    images,
-    removeImage,
-    title,
-    setTitle,
-    isSubmitting,
-  };
+  const value = useMemo(
+    () => ({
+      title,
+      setTitle,
+      prompt,
+      setPrompt,
+      images,
+      setImages,
+      isSubmitting,
+      setIsSubmitting,
+      isGenerating,
+      setIsGenerating,
+      generatedStory,
+      setGeneratedStory,
+      generationComplete,
+      setGenerationComplete,
+      fileInputRef,
+      handleFileSelect,
+      removeImage,
+      handleSubmit,
+    }),
+    [
+      title,
+      prompt,
+      images,
+      isSubmitting,
+      isGenerating,
+      generatedStory,
+      generationComplete,
+      handleFileSelect,
+      removeImage,
+      handleSubmit,
+    ]
+  );
+
+  return (
+    <GenerateStoryContext.Provider value={value}>
+      {children}
+    </GenerateStoryContext.Provider>
+  );
 };
+
+export default GenerateStoryProvider;
+
+export const useGenerateStory = () => useContext(GenerateStoryContext);
