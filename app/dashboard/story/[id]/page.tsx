@@ -1,7 +1,7 @@
-import Link from "next/link"
-import { ChevronLeft, Download, Heart, Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import Link from "next/link";
+import { ChevronLeft, Download, Heart, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 // Mock story data function - in a real app, you would fetch this data based on the ID
 const getStoryById = (id: string) => {
@@ -48,24 +48,31 @@ const getStoryById = (id: string) => {
       `,
       sourceImage: "/placeholder.svg?height=300&width=300",
     },
-  }
+  };
 
-  return stories[id as keyof typeof stories]
-}
+  return stories[id as keyof typeof stories];
+};
 
-export default function StoryPage({ params }: { params: { id: string } }) {
-  const story = getStoryById(params.id)
+export default function StoryPage({
+  params,
+}: {
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const story = getStoryById(params.id);
 
   if (!story) {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh]">
         <h1 className="text-2xl font-bold mb-4">Story not found</h1>
-        <p className="text-muted-foreground mb-6">The story you're looking for doesn't exist or has been removed.</p>
+        <p className="text-muted-foreground mb-6">
+          The story you're looking for doesn't exist or has been removed.
+        </p>
         <Button asChild>
           <Link href="/">Return Home</Link>
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -81,11 +88,17 @@ export default function StoryPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="mb-6 rounded-lg overflow-hidden">
-        <img src={story.image || "/placeholder.svg"} alt={story.title} className="w-full h-auto object-cover" />
+        <img
+          src={story.image || "/placeholder.svg"}
+          alt={story.title}
+          className="w-full h-auto object-cover"
+        />
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-muted-foreground">Generated on {story.timestamp}</div>
+        <div className="text-sm text-muted-foreground">
+          Generated on {story.timestamp}
+        </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Heart className="h-4 w-4 mr-2" />
@@ -104,7 +117,10 @@ export default function StoryPage({ params }: { params: { id: string } }) {
 
       <Separator className="mb-6" />
 
-      <div className="prose prose-purple max-w-none mb-10" dangerouslySetInnerHTML={{ __html: story.content }} />
+      <div
+        className="prose prose-purple max-w-none mb-10"
+        dangerouslySetInnerHTML={{ __html: story.content }}
+      />
 
       <div className="bg-muted/30 rounded-lg p-6 mb-10">
         <h2 className="text-xl font-semibold mb-4">Source Image</h2>
@@ -118,8 +134,9 @@ export default function StoryPage({ params }: { params: { id: string } }) {
           </div>
           <div>
             <p className="text-sm text-muted-foreground mb-4">
-              This story was generated based on the image you uploaded. Our AI analyzed the visual elements and created
-              a unique narrative inspired by what it saw.
+              This story was generated based on the image you uploaded. Our AI
+              analyzed the visual elements and created a unique narrative
+              inspired by what it saw.
             </p>
             <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
@@ -144,5 +161,5 @@ export default function StoryPage({ params }: { params: { id: string } }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
