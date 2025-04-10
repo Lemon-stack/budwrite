@@ -53,11 +53,10 @@ const getStoryById = (id: string) => {
   return stories[id as keyof typeof stories];
 };
 
-export default function StoryPage({
+export default async function StoryPage({
   params,
 }: {
   params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const story = getStoryById(params.id);
 
