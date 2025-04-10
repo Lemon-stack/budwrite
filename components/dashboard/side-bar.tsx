@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import Logo from '../logo'
+import { StoryHistory } from './story-history'
 
 // Navigation items for the sidebar
 const navItems = [
@@ -95,25 +96,7 @@ export default function DasboardSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {recentStories.map((story) => (
-                <SidebarMenuItem key={story.id}>
-                  <SidebarMenuButton asChild>
-                    <Link href={`story/${story.id}`} className="py-2">
-                      <div className="h-10 w-10 rounded-md overflow-hidden bg-muted mr-2 flex-shrink-0">
-                        <img 
-                          src={story.thumbnail || "/placeholder.svg"} 
-                          alt={story.title} 
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="truncate font-medium">{story.title}</span>
-                        <span className="text-xs text-muted-foreground">{story.timestamp}</span>
-                      </div>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              <StoryHistory />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
