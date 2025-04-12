@@ -15,11 +15,13 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  supabase: ReturnType<typeof createClient>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
+  supabase: createClient(),
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -28,16 +30,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
+    // console.log("AuthProvider mounted");
+
     const checkAndCreateUser = async () => {
       try {
+        // console.log("Checking session...");
         const {
           data: { session },
           error: sessionError,
         } = await supabase.auth.getSession();
 
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          // console.log("Session error:", sessionError);
+          throw sessionError;
+        }
+
+        console.log("Session:", session);
 
         if (session?.user) {
+          console.log("User found in session:", session.user);
           // Check if user exists in our database
           const { data: existingUser, error: fetchError } = await supabase
             .from("users")
@@ -45,31 +56,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq("id", session.user.id)
             .single();
 
-          if (fetchError && fetchError.code === "PGRST116") {
-            // User doesn't exist, create new user
-            const randomName = `user${Math.floor(Math.random() * 10000)}`;
-            const { data: newUser, error: createError } = await supabase
-              .from("users")
-              .insert([
-                {
-                  id: session.user.id,
-                  email: session.user.email,
-                  userName: randomName,
-                  userType: "free",
-                  createdAt: new Date().toISOString(),
-                },
-              ])
-              .select()
-              .single();
+          if (fetchError) {
+            if (fetchError.code === "PGRST116") {
+              // console.log("User not found in database, creating new user...");
+              // User doesn't exist, create new user
+              const randomName = `user${Math.floor(Math.random() * 10000)}`;
+              const { data: newUser, error: createError } = await supabase
+                .from("users")
+                .insert([
+                  {
+                    id: session.user.id,
+                    email: session.user.email,
+                    userName: randomName,
+                    userType: "free",
+                    createdAt: new Date().toISOString(),
+                  },
+                ])
+                .select()
+                .single();
 
-            if (createError) throw createError;
-            setUser(newUser);
+              if (createError) {
+                console.error("Error creating user:", createError);
+                throw createError;
+              }
+              console.log("New user created:", newUser);
+              setUser(newUser);
+            } else {
+              console.error("Error fetching user:", fetchError);
+              throw fetchError;
+            }
           } else if (existingUser) {
+            // console.log("Existing user found:", existingUser);
             setUser(existingUser);
           }
+        } else {
+          console.log("No session found");
+          setUser(null);
         }
       } catch (error) {
         console.error("Error in auth context:", error);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +106,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state change listener
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // console.log("Auth state changed:", event, session);
       if (session?.user) {
         checkAndCreateUser();
       } else {
@@ -90,12 +117,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => {
+      // console.log("AuthProvider unmounting");
       subscription.unsubscribe();
     };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading }}>
+    <AuthContext.Provider value={{ user, isLoading, supabase }}>
       {children}
     </AuthContext.Provider>
   );
