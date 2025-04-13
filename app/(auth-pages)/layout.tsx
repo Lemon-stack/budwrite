@@ -68,7 +68,7 @@ export default async function AuthLayout({
             </p>
 
             {/* Decorative elements */}
-            <div className="grid grid-cols-3 gap-4 mt-12 max-w-xs mx-auto">
+            {/* <div className="grid grid-cols-3 gap-4 mt-12 max-w-xs mx-auto">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
@@ -79,7 +79,7 @@ export default async function AuthLayout({
                   }}
                 />
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

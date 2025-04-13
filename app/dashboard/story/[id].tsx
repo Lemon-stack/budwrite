@@ -1,12 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Download, Share2, ImageIcon, X, Eye } from "lucide-react";
+import {
+  ChevronLeft,
+  Download,
+  Share2,
+  ImageIcon,
+  X,
+  Eye,
+  Play,
+  Pause,
+  Volume2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
+import { cleanStoryContent } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,14 +34,21 @@ type Story = {
   created_at: string;
 };
 
+// Define Props with resolved params
 type Props = {
   params: { id: string };
 };
 
+// Use regular function since params is resolved
 export default function StoryPage({ params }: Props) {
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentVoice, setCurrentVoice] = useState<SpeechSynthesisVoice | null>(
+    null
+  );
+  const [volume, setVolume] = useState(1);
 
   useEffect(() => {
     async function loadStory() {
@@ -52,6 +71,25 @@ export default function StoryPage({ params }: Props) {
     loadStory();
   }, [params.id]);
 
+  useEffect(() => {
+    // Initialize voices
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      // Try to find a female voice, fallback to first available
+      const femaleVoice = voices.find(
+        (voice) =>
+          voice.name.toLowerCase().includes("female") ||
+          voice.name.toLowerCase().includes("woman")
+      );
+      setCurrentVoice(femaleVoice || voices[0]);
+    };
+
+    loadVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
   const handleShare = async () => {
     try {
       await navigator.share({
@@ -69,8 +107,8 @@ export default function StoryPage({ params }: Props) {
     if (!story) return;
 
     try {
-      // Create text content
-      const content = `${story.title}\n\n${story.content}`;
+      // Create text content with just the story content
+      const content = cleanStoryContent(story.content);
 
       // Create and download file
       const blob = new Blob([content], { type: "text/plain" });
@@ -110,15 +148,54 @@ export default function StoryPage({ params }: Props) {
     }
   };
 
+  const handlePlay = () => {
+    if (!story) return;
+
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+      return;
+    }
+
+    const content = cleanStoryContent(story.content);
+    const utterance = new SpeechSynthesisUtterance(content);
+
+    if (currentVoice) {
+      utterance.voice = currentVoice;
+    }
+
+    utterance.volume = volume;
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    utterance.onend = () => {
+      setIsPlaying(false);
+    };
+
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    setVolume(value[0]);
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      handlePlay();
+    }
+  };
+
   // Function to format content with proper paragraphs
   const formatContent = (content: string) => {
+    // Clean the content first
+    const cleanedContent = cleanStoryContent(content);
+
     // If content is already HTML, return it as is
-    if (content.includes("<p>") || content.includes("<div>")) {
-      return content;
+    if (cleanedContent.includes("<p>") || cleanedContent.includes("<div>")) {
+      return cleanedContent;
     }
 
     // Otherwise, split by double newlines and wrap in paragraph tags
-    return content
+    return cleanedContent
       .split(/\n\n+/)
       .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br>")}</p>`)
       .join("");
@@ -174,6 +251,39 @@ export default function StoryPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Audio Player
+      <div className="bg-muted/30 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handlePlay}
+              className="rounded-full"
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+            </Button>
+            <div className="flex items-center gap-2">
+              <Volume2 className="h-4 w-4 text-muted-foreground" />
+              <Slider
+                value={[volume]}
+                onValueChange={handleVolumeChange}
+                max={1}
+                step={0.1}
+                className="w-24"
+              />
+            </div>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {isPlaying ? "Reading..." : "Listen to the story"}
+          </span>
+        </div>
+      </div> */}
+
       <Separator className="mb-6" />
 
       {/* Attachment-style container */}
@@ -192,7 +302,7 @@ export default function StoryPage({ params }: Props) {
               </span>
             </div>
             <div className="p-3">
-              <img 
+              <img
                 src={story.image}
                 alt="Story preview"
                 className="w-full h-32 object-cover rounded opacity-90 group-hover:opacity-100 transition-opacity"

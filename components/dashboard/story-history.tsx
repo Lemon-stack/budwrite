@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@supabase/supabase-js";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
+import { cleanStoryContent } from "@/lib/utils";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -95,7 +96,7 @@ export function StoryHistory() {
                 })}
               </p>
               <p className="text-xs line-clamp-2">
-                {story.content?.replace(/<[^>]*>/g, "")}
+                {cleanStoryContent(story.content?.replace(/<[^>]*>/g, ""))}
               </p>
             </div>
           </div>
@@ -105,7 +106,7 @@ export function StoryHistory() {
       {isLoading && stories.length > 0 && (
         <div className="space-y-3">
           {[...Array(2)].map((_, i) => (
-            <Card key={`loading-${i}`} className="p-3">
+            <Card key={`skeleton-${i}`} className="p-3">
               <div className="flex gap-3">
                 <Skeleton className="h-16 w-16 rounded-md" />
                 <div className="flex-1 space-y-2">

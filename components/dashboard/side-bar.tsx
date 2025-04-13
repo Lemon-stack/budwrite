@@ -1,6 +1,15 @@
-import { BookOpen, ChevronRight, Home, PenSquare, Settings, Star, User, Wand2 } from 'lucide-react'
-import Link from "next/link"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  BookOpen,
+  ChevronRight,
+  Home,
+  PenSquare,
+  Settings,
+  Star,
+  User,
+  Wand2,
+} from "lucide-react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
   Sidebar,
@@ -15,10 +24,11 @@ import {
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
-} from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import Logo from '../logo'
-import { StoryHistory } from './story-history'
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import Logo from "../logo";
+import { StoryHistory } from "./story-history";
+import { UserCard } from "./user-card";
 
 // Navigation items for the sidebar
 const navItems = [
@@ -27,45 +37,23 @@ const navItems = [
     icon: Home,
     href: "/dashboard",
   },
-  {
-    title: "Favorites",
-    icon: Star,
-    href: "/dashboard/favorites",
-  },
+  // {
+  //   title: "Favorites",
+  //   icon: Star,
+  //   href: "/dashboard/favorites",
+  // },
   {
     title: "Settings",
     icon: Settings,
     href: "/dashboard/settings",
   },
-]
-
-// Mock recent stories data
-const recentStories = [
-  {
-    id: "story-1",
-    title: "The Mountain Adventure",
-    timestamp: "2 hours ago",
-    thumbnail: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "story-2",
-    title: "Ocean Mysteries",
-    timestamp: "Yesterday",
-    thumbnail: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "story-3",
-    title: "City Lights",
-    timestamp: "3 days ago",
-    thumbnail: "/placeholder.svg?height=40&width=40",
-  },
-]
+];
 
 export default function DasboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="h-16 z-20 justify-center border-b border-sidebar-border flex items-start px-4">
-        <Logo/>
+        <Logo />
       </SidebarHeader>
       <SidebarContent>
         {/* Navigation Links */}
@@ -92,7 +80,6 @@ export default function DasboardSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="flex justify-between items-center">
             <span>Story History</span>
-          
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -101,27 +88,12 @@ export default function DasboardSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
+
       <SidebarFooter className="border-t border-sidebar-border">
         {/* User Card */}
-        <div className="p-4">
-          <div className="flex items-center gap-3 mb-4">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="font-medium">User Name</span>
-              <span className="text-xs text-muted-foreground">Free Plan</span>
-            </div>
-          </div>
-          <Button className="w-full gap-2 bg-purple-600 hover:bg-purple-700">
-            <PenSquare className="h-4 w-4" />
-            <span>Create New Story</span>
-          </Button>
-        </div>
+        <UserCard />
         <SidebarRail />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
