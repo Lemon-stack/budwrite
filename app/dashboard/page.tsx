@@ -11,7 +11,8 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { generateNewStory, isLoading, error } = useStory();
+  const { generateNewStory, isLoading, isImageLoading, error, clearInputs } =
+    useStory();
   const [title, setTitle] = useState("");
   const [images, setImages] = useState<Array<{ id: string; preview: string }>>(
     []
@@ -67,6 +68,11 @@ export default function DashboardPage() {
     if (images.length === 0 || !title) return;
 
     try {
+      // Clear inputs immediately when generation starts
+      setTitle("");
+      setImages([]);
+      clearInputs();
+
       // For now, we'll use the first image
       const imageFile = await fetch(images[0].preview)
         .then((res) => res.blob())
@@ -82,7 +88,7 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex items-center justify-end gap-4 mb-20 ml-auto">
+      <div className="hidden items-center justify-end gap-4 mb-20 ml-auto">
         <div className="bg-muted px-4 py-2 rounded-lg">
           <span className="text-sm text-muted-foreground">Credits: </span>
           <span className="font-semibold">{credits}</span>
@@ -107,6 +113,7 @@ export default function DashboardPage() {
         title={title}
         setTitle={setTitle}
         isSubmitting={isLoading}
+        isImageLoading={isImageLoading}
       />
     </div>
   );

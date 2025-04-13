@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Download, Share2 } from "lucide-react";
+import { ChevronLeft, Download, Share2, ImageIcon, X, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,6 +29,7 @@ type Props = {
 export default function StoryPage({ params }: Props) {
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadStory() {
@@ -87,6 +89,41 @@ export default function StoryPage({ params }: Props) {
     }
   };
 
+  const handleDownloadImage = async () => {
+    if (!story?.image) return;
+
+    try {
+      const response = await fetch(story.image);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${story.title.toLowerCase().replace(/\s+/g, "-")}-image.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("Image downloaded!");
+    } catch (error) {
+      toast.error("Failed to download image");
+    }
+  };
+
+  // Function to format content with proper paragraphs
+  const formatContent = (content: string) => {
+    // If content is already HTML, return it as is
+    if (content.includes("<p>") || content.includes("<div>")) {
+      return content;
+    }
+
+    // Otherwise, split by double newlines and wrap in paragraph tags
+    return content
+      .split(/\n\n+/)
+      .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br>")}</p>`)
+      .join("");
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
@@ -139,13 +176,31 @@ export default function StoryPage({ params }: Props) {
 
       <Separator className="mb-6" />
 
-      <div className="mb-6 rounded-lg overflow-hidden max-w-2xl mx-auto">
-        <img
-          src={story.image}
-          alt="Story image"
-          className="w-full h-auto object-cover"
-        />
-      </div>
+      {/* Attachment-style container */}
+      {story.image && (
+        <div className="mb-8 max-w-md mr-auto">
+          <div
+            className="border rounded-lg overflow-hidden bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer group"
+            onClick={() => setImageModalOpen(true)}
+          >
+            <div className="flex items-center px-3 py-2 border-b bg-muted/30">
+              <ImageIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+              <span className="text-sm font-medium">Story Image</span>
+              <span className="text-xs text-muted-foreground ml-auto flex items-center gap-1">
+                <Eye className="h-3 w-3" />
+                Preview
+              </span>
+            </div>
+            <div className="p-3">
+              <img 
+                src={story.image}
+                alt="Story preview"
+                className="w-full h-32 object-cover rounded opacity-90 group-hover:opacity-100 transition-opacity"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {story.status === "generating" ? (
         <div className="flex flex-col items-center justify-center py-10">
@@ -154,19 +209,48 @@ export default function StoryPage({ params }: Props) {
         </div>
       ) : (
         <div
-          className="prose prose-purple max-w-none mb-10"
-          dangerouslySetInnerHTML={{ __html: story.content }}
+          className="prose prose-purple max-w-none mb-10 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: formatContent(story.content) }}
         />
       )}
 
+      {/* Image modal */}
+      <Dialog open={imageModalOpen} onOpenChange={setImageModalOpen}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden">
+          <div className="relative">
+            <DialogClose className="absolute right-2 top-2 z-10 rounded-full bg-black/40 p-1 text-white hover:bg-black/60">
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close</span>
+            </DialogClose>
+            <img
+              src={story.image || "/placeholder.svg"}
+              alt="Story image"
+              className="w-full h-auto max-h-[80vh] object-contain"
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleDownloadImage}
+                className="text-white border-white/30 hover:bg-white/20 hover:text-white"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Source image section */}
       <div className="bg-muted/30 rounded-lg p-6 mb-10">
         <h2 className="text-xl font-semibold mb-4">Source Image</h2>
-        <div className="flex items-start gap-6">
-          <div className="w-1/4 rounded-md overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start gap-6">
+          <div className="w-full md:w-1/5 rounded-md overflow-hidden mb-4 md:mb-0">
             <img
-              src={story.image}
+              src={story.image || "/placeholder.svg"}
               alt="Source image for the story"
-              className="w-full h-auto"
+              className="w-full h-auto object-cover"
             />
           </div>
           <div>
@@ -175,7 +259,7 @@ export default function StoryPage({ params }: Props) {
               analyzed the visual elements and created a unique narrative
               inspired by what it saw.
             </p>
-            <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Button variant="outline" size="sm" onClick={handleDownloadImage}>
               <Download className="h-4 w-4 mr-2" />
               Download Original Image
             </Button>

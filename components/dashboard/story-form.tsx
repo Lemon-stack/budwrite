@@ -18,6 +18,7 @@ interface StoryFormProps {
   title: string;
   setTitle: (title: string) => void;
   isSubmitting: boolean;
+  isImageLoading?: boolean;
 }
 
 export default function StoryForm({
@@ -29,6 +30,7 @@ export default function StoryForm({
   title,
   setTitle,
   isSubmitting,
+  isImageLoading = false,
 }: StoryFormProps) {
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -43,7 +45,11 @@ export default function StoryForm({
                   className="flex-shrink-0 h-16 w-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                  {isImageLoading ? (
+                    <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
+                  ) : (
+                    <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                  )}
                   <input
                     ref={fileInputRef}
                     type="file"
