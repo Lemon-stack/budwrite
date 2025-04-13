@@ -26,9 +26,9 @@ export function StoryProvider({ children }: { children: ReactNode }) {
 
   const generateNewStory = async (imageFile: File, title: string) => {
     try {
-      console.log("Starting story generation with title:", title);
+      // console.log("Starting story generation with title:", title);
       const storyId = await generateStory(imageFile, title);
-      console.log("Received story ID:", storyId);
+      // console.log("Received story ID:", storyId);
 
       // Validate story ID
       if (!storyId) {
@@ -50,7 +50,7 @@ export function StoryProvider({ children }: { children: ReactNode }) {
 
       // Only set story if we have a valid storyId
       setCurrentStory({ id: storyId, title });
-      console.log("Successfully set current story with ID:", storyId);
+      // console.log("Successfully set current story with ID:", storyId);
       return storyId;
     } catch (error) {
       console.error("Error in generateNewStory:", {

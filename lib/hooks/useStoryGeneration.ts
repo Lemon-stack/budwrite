@@ -176,10 +176,10 @@ export function useStoryGeneration() {
       }
 
       const storyData = await storyResponse.json();
-      console.log("Story generated successfully");
+      // console.log("Story generated successfully");
 
       // Save story and deduct credits
-      console.log("Saving story and deducting credits");
+      // console.log("Saving story and deducting credits");
 
       // First, create the story record
       const { data: createdStory, error: storyError } = await supabase
@@ -195,13 +195,13 @@ export function useStoryGeneration() {
         .single();
 
       if (storyError) {
-        console.error("Error creating story:", storyError);
+        // console.error("Error creating story:", storyError);
         toast.error("Failed to save story");
         throw new Error("Failed to save story");
       }
 
       if (!createdStory?.id) {
-        console.error("No story ID returned from story creation");
+        // console.error("No story ID returned from story creation");
         toast.error("Failed to save story");
         throw new Error("Failed to save story");
       }
@@ -213,14 +213,14 @@ export function useStoryGeneration() {
         .eq("id", user.id);
 
       if (creditError) {
-        console.error("Error deducting credits:", creditError);
+        // console.error("Error deducting credits:", creditError);
         // Try to delete the story since credit deduction failed
         await supabase.from("stories").delete().eq("id", createdStory.id);
         toast.error("Failed to update credits");
         throw new Error("Failed to update credits");
       }
 
-      console.log("Story saved successfully with ID:", createdStory.id);
+      // console.log("Story saved successfully with ID:", createdStory.id);
       return createdStory.id;
     } catch (error) {
       console.error("Error in generateStory:", {

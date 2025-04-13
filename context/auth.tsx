@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     userName: randomName,
                     userType: "free",
                     createdAt: new Date().toISOString(),
+                    credits: 1,
                   },
                 ])
                 .select()
