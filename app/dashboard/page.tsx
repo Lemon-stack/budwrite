@@ -76,6 +76,7 @@ export default function DashboardPage() {
       router.push(`/dashboard/story/${storyId}`);
     } catch (err) {
       console.error("Error creating story:", err);
+      // Don't navigate on error
     }
   };
 

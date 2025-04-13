@@ -7,7 +7,7 @@ type StoryContextType = {
   currentStory: any | null;
   isLoading: boolean;
   error: string | null;
-  generateNewStory: (file: File, title: string) => Promise<void>;
+  generateNewStory: (file: File, title: string) => Promise<string>;
 };
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
@@ -17,15 +17,22 @@ export function StoryProvider({ children }: { children: ReactNode }) {
   const { isLoading, error, generateStory } = useStoryGeneration();
   const router = useRouter();
 
-  const generateNewStory = async (file: File, title: string) => {
+  const generateNewStory = async (imageFile: File, title: string) => {
     try {
-      const storyId = await generateStory(file, title);
-      if (storyId) {
-        setCurrentStory({ id: storyId, title });
-        router.push(`/dashboard/story/${storyId}`);
+      const storyId = await generateStory(imageFile, title);
+
+      // Explicitly check if storyId is valid before proceeding
+      if (!storyId || typeof storyId !== "string" || storyId.trim() === "") {
+        throw new Error("Invalid story ID received");
       }
-    } catch (err) {
-      console.error("Error generating story:", err);
+
+      // Only set story if we have a valid storyId
+      setCurrentStory({ id: storyId, title });
+      return storyId;
+    } catch (error) {
+      console.error("Error generating story:", error);
+      // Error is already handled in useStoryGeneration (sets error state)
+      throw error;
     }
   };
 

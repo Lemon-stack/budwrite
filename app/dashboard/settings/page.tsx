@@ -1,83 +1,175 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { UserType } from "@/types/user";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { supabase, user } = useAuth();
+  const [credits, setCredits] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
-  if (!user) return null;
+  useEffect(() => {
+    if (user) {
+      setName(user.user_metadata?.full_name || "");
+      setEmail(user.email || "");
+      loadCredits();
+    }
+  }, [user]);
 
-  const getPlanColor = (type: UserType) => {
-    switch (type) {
-      case "free":
-        return "bg-gray-500";
-      case "pro":
-        return "bg-purple-500";
-      case "enterprise":
-        return "bg-blue-500";
-      default:
-        return "bg-gray-500";
+  const loadCredits = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("users")
+      .select("credits")
+      .eq("id", user.id)
+      .single();
+
+    setCredits(data?.credits ?? 0);
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: name },
+      });
+
+      if (error) throw error;
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      toast.error("Failed to update profile");
+      console.error(error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleBuyCredits = async (amount: number) => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      // Create a checkout session with Polar.sh
+      const response = await fetch("/api/polar/create-checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          amount,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create checkout session");
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      toast.error("Failed to initiate purchase");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">Settings</h1>
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-8">Settings</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Username</p>
-              <p className="text-lg font-medium">{user.userName}</p>
-            </div>
-            <Button variant="outline">Change</Button>
-          </div>
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Profile Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  value={email}
+                  disabled
+                  placeholder="Your email"
+                />
+              </div>
+              <Button type="submit" disabled={isUpdating}>
+                {isUpdating ? "Updating..." : "Update Profile"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="text-lg font-medium">{user.email}</p>
-            </div>
-            <Button variant="outline">Change</Button>
-          </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Credits</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Current Credits
+                  </p>
+                  <p className="text-2xl font-bold">{credits}</p>
+                </div>
+              </div>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Plan</p>
-              <div className="flex items-center gap-2">
-                <p className="text-lg font-medium capitalize">
-                  {user.userType}
-                </p>
-                <Badge className={getPlanColor(user.userType)}>
-                  {user.userType === "free"
-                    ? "Free Plan"
-                    : user.userType === "pro"
-                      ? "Pro Plan"
-                      : "Enterprise Plan"}
-                </Badge>
+              <div className="grid grid-cols-2 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => handleBuyCredits(5)}
+                  disabled={isLoading}
+                >
+                  Buy 5 Credits ($5)
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleBuyCredits(10)}
+                  disabled={isLoading}
+                >
+                  Buy 10 Credits ($10)
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleBuyCredits(20)}
+                  disabled={isLoading}
+                >
+                  Buy 20 Credits ($20)
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleBuyCredits(50)}
+                  disabled={isLoading}
+                >
+                  Buy 50 Credits ($50)
+                </Button>
               </div>
             </div>
-            {user.userType !== "enterprise" && <Button>Upgrade Plan</Button>}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Member Since</p>
-              <p className="text-lg font-medium">
-                {new Date(user.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

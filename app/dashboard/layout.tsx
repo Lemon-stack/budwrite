@@ -3,6 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import DasboardSidebar from "@/components/dashboard/side-bar";
 import { Header } from "@/components/dashboard/header";
 import { AuthProvider } from "@/context/auth";
+import { Toaster } from "sonner";
 
 export default function DashboardLayout({
   children,
@@ -20,6 +21,7 @@ export default function DashboardLayout({
           </div>
         </div>
       </SidebarProvider>
+      <Toaster />
     </AuthProvider>
   );
 }

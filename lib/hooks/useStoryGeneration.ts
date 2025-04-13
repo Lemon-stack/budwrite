@@ -33,7 +33,7 @@ export function useStoryGeneration() {
 
     try {
       validateImage(file);
-      const fileName = `${user.id}-${Date.now()}-${file.name}`; // Unique name
+      const fileName = `${user.id}-${Date.now()}-${file.name}`;
       console.log("Uploading file:", fileName);
 
       toast.info("Uploading image...");
@@ -65,12 +65,37 @@ export function useStoryGeneration() {
     }
   };
 
+  const checkCredits = async (userId: string) => {
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("credits")
+      .eq("id", userId)
+      .single();
+
+    if (userError) {
+      console.error("Error checking credits:", userError);
+      throw new Error("Failed to check credits");
+    }
+
+    if (!userData) {
+      throw new Error("User not found");
+    }
+
+    if (userData.credits <= 0) {
+      toast.error(
+        "Insufficient credits. Please purchase more credits to continue."
+      );
+    }
+
+    return userData.credits;
+  };
+
   const generateStory = async (imageFile: File, title: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Check user credits first
+      // Check authentication
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -78,27 +103,19 @@ export function useStoryGeneration() {
         throw new Error("User must be authenticated");
       }
 
-      // Get user's credits
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("credits")
-        .eq("id", user.id)
-        .single();
-
-      if (userError) throw new Error("Failed to check credits");
-      if (!userData?.credits || userData.credits < 1) {
-        throw new Error(
-          "Insufficient credits. Please purchase more credits to continue."
-        );
+      // Check credits first before any expensive operations
+      const credits = await checkCredits(user.id);
+      if (credits <= 0) {
+        toast.error("Insufficient credits");
       }
 
-      // Upload image first
+      // Upload image
       const imageUrl = await uploadImage(imageFile);
 
-      // Wait for image to be available
+      // Verify image
       const imageResponse = await fetch(imageUrl);
       if (!imageResponse.ok) {
-        throw new Error("Failed to verify uploaded image");
+        toast.error("Failed to verify uploaded image");
       }
 
       // Analyze image
@@ -111,7 +128,7 @@ export function useStoryGeneration() {
       });
 
       if (!analyzeResponse.ok) {
-        throw new Error("Failed to analyze image");
+        toast.error("Failed to analyze image");
       }
 
       const { description } = await analyzeResponse.json();
@@ -126,12 +143,12 @@ export function useStoryGeneration() {
       });
 
       if (!storyResponse.ok) {
-        throw new Error("Failed to generate story");
+        toast.error("Failed to generate story");
       }
 
       const storyData = await storyResponse.json();
 
-      // Deduct credits and save story in a transaction
+      // Save story and deduct credits
       const { data: result, error: transactionError } = await supabase.rpc(
         "create_story_and_deduct_credit",
         {
@@ -142,8 +159,9 @@ export function useStoryGeneration() {
         }
       );
 
-      if (transactionError) {
-        throw new Error("Failed to save story and update credits");
+      if (transactionError || !result?.story_id) {
+        console.error("Error creating story:", transactionError);
+        toast.error("Failed to save story and update credits");
       }
 
       return result.story_id;

@@ -65,11 +65,11 @@ export default function StoryPage({ params }: Props) {
 
   const handleDownload = async () => {
     if (!story) return;
-    
+
     try {
       // Create text content
       const content = `${story.title}\n\n${story.content}`;
-      
+
       // Create and download file
       const blob = new Blob([content], { type: "text/plain" });
       const url = window.URL.createObjectURL(blob);
@@ -80,7 +80,7 @@ export default function StoryPage({ params }: Props) {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       toast.success("Story downloaded!");
     } catch (error) {
       toast.error("Failed to download story");
