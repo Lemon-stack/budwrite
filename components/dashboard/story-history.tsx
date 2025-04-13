@@ -15,7 +15,7 @@ const supabase = createClient(
 
 export function StoryHistory() {
   const { stories, isLoading, error, loadMore, hasMore } = useStories();
-  console.log("stories", stories);
+  // console.log("stories", stories);
   const observerTarget = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
