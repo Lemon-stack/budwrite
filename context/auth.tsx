@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (fetchError) {
             if (fetchError.code === "PGRST116") {
-              // console.log("User not found in database, creating new user...");
+              console.log("User not found in database, creating new user...");
               // User doesn't exist, create new user
               const randomName = `user${Math.floor(Math.random() * 10000)}`;
               const { data: newUser, error: createError } = await supabase
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               throw fetchError;
             }
           } else if (existingUser) {
-            // console.log("Existing user found:", existingUser);
+            console.log("Existing user found:", existingUser);
             setUser(existingUser);
           }
         } else {
