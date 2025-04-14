@@ -73,7 +73,13 @@ export function useStories() {
         })
       );
 
-      setStories((prev) => [...prev, ...formattedData]);
+      // Filter out any stories that already exist in the current list
+      const existingIds = new Set(stories.map((s) => s.id));
+      const newStories = formattedData.filter(
+        (story) => !existingIds.has(story.id)
+      );
+
+      setStories((prev) => [...prev, ...newStories]);
       setHasMore(data.length === pageSize);
       setPage((prev) => prev + 1);
     } catch (err) {

@@ -56,37 +56,61 @@ export function CreditsSection({ user }: { user: any }) {
               variant="outline"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_5_CREDITS!,
-                  5
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_3_CREDITS!,
+                  3
                 )
               }
               disabled={isLoading}
             >
-              Buy 5 Credits ($5)
+              <div className="text-left">
+                <div className="font-semibold">Starter</div>
+                <div className="text-xs text-muted-foreground">
+                  3 credits • $1.00/credit
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Quick try or casual users
+                </div>
+              </div>
             </Button>
             <Button
               variant="outline"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_10_CREDITS!,
-                  10
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_9_CREDITS!,
+                  9
                 )
               }
               disabled={isLoading}
             >
-              Buy 10 Credits ($10)
+              <div className="text-left">
+                <div className="font-semibold">Creator</div>
+                <div className="text-xs text-muted-foreground">
+                  9 credits • $0.78/credit
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Light storytellers
+                </div>
+              </div>
             </Button>
             <Button
               variant="outline"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_20_CREDITS!,
-                  20
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_22_CREDITS!,
+                  22
                 )
               }
               disabled={isLoading}
             >
-              Buy 20 Credits ($20)
+              <div className="text-left">
+                <div className="font-semibold">Pro</div>
+                <div className="text-xs text-muted-foreground">
+                  22 credits • $0.68/credit
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Frequent users
+                </div>
+              </div>
             </Button>
             <Button
               variant="outline"
@@ -98,7 +122,15 @@ export function CreditsSection({ user }: { user: any }) {
               }
               disabled={isLoading}
             >
-              Buy 50 Credits ($50)
+              <div className="text-left">
+                <div className="font-semibold">Studio</div>
+                <div className="text-xs text-muted-foreground">
+                  50 credits • $0.60/credit
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Power creators & teams
+                </div>
+              </div>
             </Button>
           </div>
         </div>
