@@ -3,12 +3,23 @@ import { BookOpen } from "lucide-react";
 import { headers } from "next/headers";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/logo";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   // Get the current pathname to determine which page we're on
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "";
@@ -50,36 +61,22 @@ export default async function AuthLayout({
               />
             ))}
           </div>
-
-          <div className="max-w-md text-center z-10 transition-all duration-500 transform">
-            <div className="mx-auto mb-8 h-20 w-20 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
-              <Logo text="hidden" />
-            </div>
-
-            <h1 className="text-3xl font-bold mb-4 tracking-tight">
-              Picto Story
+          <div className="relative z-10 text-center">
+            <Logo text="text-4xl" icon="h-12 w-12" />
+            <h1 className="mt-8 text-4xl font-bold">
+              {isSignUp
+                ? "Join PictoStory Today"
+                : isForgotPassword
+                  ? "Reset Your Password"
+                  : "Welcome Back"}
             </h1>
-            <p className="text-xl mb-6 leading-relaxed font-light">
-              {isForgotPassword
-                ? "No worries! We'll help you reset your password and get back to creating."
-                : isSignUp
-                  ? "Join our community and start creating beautiful picture stories today."
-                  : "Welcome back! Sign in to continue your creative journey."}
+            <p className="mt-4 text-lg text-white/80">
+              {isSignUp
+                ? "Create an account to start generating stories from your images"
+                : isForgotPassword
+                  ? "Enter your email to reset your password"
+                  : "Sign in to your account to continue"}
             </p>
-
-            {/* Decorative elements */}
-            {/* <div className="grid grid-cols-3 gap-4 mt-12 max-w-xs mx-auto">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square rounded-lg bg-white/20 backdrop-blur-sm border border-white/10 transition-all duration-300 hover:scale-105 hover:bg-white/30"
-                  style={{
-                    opacity: 0.7 + i * 0.05,
-                    transform: `rotate(${(i % 3) * 3}deg)`,
-                  }}
-                />
-              ))}
-            </div> */}
           </div>
         </div>
       </div>

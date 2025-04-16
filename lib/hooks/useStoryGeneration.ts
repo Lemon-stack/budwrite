@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
-
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const BUCKET_NAME = "stories";
 
@@ -91,6 +90,62 @@ export function useStoryGeneration() {
     return userData.credits;
   };
 
+  const generateStoryWithAI = async (imageUrl: string, title: string) => {
+    console.log("Starting story generation with AI");
+    console.log("Image URL:", imageUrl);
+    console.log("Title:", title);
+
+    try {
+      console.log("Making analyze request to /api/gemini/analyze");
+      const analyzeResponse = await fetch("/api/gemini/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+
+      console.log("Analyze response status:", analyzeResponse.status);
+      if (!analyzeResponse.ok) {
+        const errorText = await analyzeResponse.text();
+        console.error("Analyze response error:", errorText);
+        throw new Error(
+          `Failed to analyze image: ${analyzeResponse.status} ${errorText}`
+        );
+      }
+
+      const analyzeData = await analyzeResponse.json();
+      console.log("Analyze response data:", analyzeData);
+      const { description } = analyzeData;
+      console.log("Image description:", description);
+
+      console.log("Making generate request to /api/generate-story");
+      const storyResponse = await fetch("/api/generate-story", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description, title, imageUrl }),
+      });
+
+      console.log("Generate response status:", storyResponse.status);
+      if (!storyResponse.ok) {
+        const errorText = await storyResponse.text();
+        console.error("Generate response error:", errorText);
+        throw new Error(
+          `Failed to generate story: ${storyResponse.status} ${errorText}`
+        );
+      }
+
+      const storyData = await storyResponse.json();
+      console.log("Story generation successful");
+      return storyData.content;
+    } catch (error) {
+      console.error("Error in generateStoryWithAI:", {
+        error,
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      throw error;
+    }
+  };
+
   const generateStory = async (imageFile: File, title: string) => {
     setIsLoading(true);
     setError(null);
@@ -137,7 +192,8 @@ export function useStoryGeneration() {
             user_id: user.id,
             title,
             content: story,
-            image_url: imageUrl,
+            image: imageUrl,
+            status: "completed",
             created_at: new Date().toISOString(),
           },
         ])

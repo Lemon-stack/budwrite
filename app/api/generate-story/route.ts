@@ -1,0 +1,77 @@
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
+  defaultHeaders: {
+    "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL,
+    "X-Title": "PictoStory",
+  },
+});
+
+export async function POST(request: Request) {
+  try {
+    const { description, title, imageUrl } = await request.json();
+    console.log("Received request with:", { description, title, imageUrl });
+
+    if (!description || !title || !imageUrl) {
+      console.error("Missing required fields:", {
+        description,
+        title,
+        imageUrl,
+      });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Generating story with GPT-4.1-mini");
+    const completion = await openai.chat.completions.create({
+      model: "openai/gpt-4.1-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a creative storyteller. Create an engaging story based on the image description and title. The story should be imaginative, well-structured, and suitable for all ages.",
+        },
+        {
+          role: "user",
+          content: `Create a story based on this image description: "${description}"\n\nTitle: ${title}\n\nPlease write a creative and engaging story.`,
+        },
+      ],
+      max_tokens: 1000,
+      temperature: 0.7,
+    });
+
+    console.log("Story generation response:", completion);
+
+    if (!completion || !completion.choices || completion.choices.length === 0) {
+      console.error("Invalid response format from GPT-4.1-mini:", completion);
+      throw new Error("Invalid response format from GPT-4.1-mini");
+    }
+
+    const story = completion.choices[0].message?.content;
+
+    if (!story) {
+      console.error("No story content received from GPT-4.1-mini");
+      throw new Error("No story content received from GPT-4.1-mini");
+    }
+
+    return NextResponse.json({ content: story });
+  } catch (error) {
+    console.error("Error generating story:", {
+      error,
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return NextResponse.json(
+      {
+        error: "Failed to generate story",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
+}

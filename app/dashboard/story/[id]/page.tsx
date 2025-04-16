@@ -34,14 +34,12 @@ type Story = {
   created_at: string;
 };
 
-// Define Props with params as a Promise
 type Props = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 };
 
-// Use async function to handle Promise params
-export default async function StoryPage({ params }: Props) {
-  const { id } = await params; // Resolve the Promise to get the id
+export default function StoryPage({ params }: Props) {
+  const { id } = params;
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageModalOpen, setImageModalOpen] = useState(false);
