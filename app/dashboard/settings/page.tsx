@@ -22,7 +22,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="mx-auto py-8">
       <div className="max-w-2xl mx-auto space-y-6">
         <ProfileSection user={user} />
         <CreditsSection user={user} />

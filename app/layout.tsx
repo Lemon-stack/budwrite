@@ -10,8 +10,10 @@ const defaultUrl = process.env.VERCEL_URL
   : "http://localhost:3000";
 
 const geistSans = Geist({
-  display: "swap",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-geist",
 });
 
 export const metadata: Metadata = {

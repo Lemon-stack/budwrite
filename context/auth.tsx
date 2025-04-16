@@ -10,24 +10,40 @@ interface User {
   userName: string;
   userType: UserType;
   createdAt: string;
+  credits: number;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   supabase: ReturnType<typeof createClient>;
+  credits: number | null;
+  refreshCredits: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   supabase: createClient(),
+  credits: null,
+  refreshCredits: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [credits, setCredits] = useState<number | null>(null);
   const supabase = createClient();
+
+  const refreshCredits = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("users")
+      .select("credits")
+      .eq("id", user.id)
+      .single();
+    setCredits(data?.credits ?? 0);
+  };
 
   useEffect(() => {
     // console.log("AuthProvider mounted");
@@ -82,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
               console.log("New user created:", newUser);
               setUser(newUser);
+              setCredits(newUser.credits);
             } else {
               console.error("Error fetching user:", fetchError);
               throw fetchError;
@@ -89,14 +106,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else if (existingUser) {
             console.log("Existing user found:", existingUser);
             setUser(existingUser);
+            setCredits(existingUser.credits);
           }
         } else {
           console.log("No session found");
           setUser(null);
+          setCredits(null);
         }
       } catch (error) {
         console.error("Error in auth context:", error);
         setUser(null);
+        setCredits(null);
       } finally {
         setIsLoading(false);
       }
@@ -113,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         checkAndCreateUser();
       } else {
         setUser(null);
+        setCredits(null);
         setIsLoading(false);
       }
     });
@@ -124,7 +145,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, supabase }}>
+    <AuthContext.Provider
+      value={{ user, isLoading, supabase, credits, refreshCredits }}
+    >
       {children}
     </AuthContext.Provider>
   );

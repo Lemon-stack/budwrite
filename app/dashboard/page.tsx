@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useStory } from "@/lib/contexts/StoryContext";
 import StoryForm from "@/components/dashboard/story-form";
@@ -18,27 +18,7 @@ export default function DashboardPage() {
     []
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { supabase } = useAuth();
-  const [credits, setCredits] = useState<number | null>(null);
-
-  useEffect(() => {
-    async function loadCredits() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from("users")
-          .select("credits")
-          .eq("id", user.id)
-          .single();
-
-        setCredits(data?.credits ?? 0);
-      }
-    }
-
-    loadCredits();
-  }, [supabase]);
+  const { credits } = useAuth();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -68,12 +48,10 @@ export default function DashboardPage() {
     if (images.length === 0 || !title) return;
 
     try {
-      // Clear inputs immediately when generation starts
       setTitle("");
       setImages([]);
       clearInputs();
 
-      // For now, we'll use the first image
       const imageFile = await fetch(images[0].preview)
         .then((res) => res.blob())
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
@@ -82,12 +60,11 @@ export default function DashboardPage() {
       router.push(`/dashboard/story/${storyId}`);
     } catch (err) {
       console.error("Error creating story:", err);
-      // Don't navigate on error
     }
   };
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="mx-auto py-10">
       <div className="flex items-center justify-end gap-4 mb-20 ml-auto">
         <div className="bg-muted px-4 py-2 rounded-lg">
           <span className="text-sm text-muted-foreground">Credits: </span>
@@ -100,7 +77,7 @@ export default function DashboardPage() {
           Buy Credits
         </Link>
       </div>
-      <h2 className="text-5xl font-bold text-center text-slate-200 mb-6">
+      <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-200 mb-6">
         What do you want to create today?
       </h2>
 

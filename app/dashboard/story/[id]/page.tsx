@@ -34,13 +34,14 @@ type Story = {
   created_at: string;
 };
 
-// Define Props with resolved params
+// Define Props with params as a Promise
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-// Use regular function since params is resolved
-export default function StoryPage({ params }: Props) {
+// Use async function to handle Promise params
+export default async function StoryPage({ params }: Props) {
+  const { id } = await params; // Resolve the Promise to get the id
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageModalOpen, setImageModalOpen] = useState(false);
@@ -56,7 +57,7 @@ export default function StoryPage({ params }: Props) {
         const { data, error } = await supabase
           .from("stories")
           .select("*")
-          .eq("id", params.id)
+          .eq("id", id)
           .single();
 
         if (error) throw error;
@@ -69,13 +70,12 @@ export default function StoryPage({ params }: Props) {
     }
 
     loadStory();
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     // Initialize voices
     const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
-      // Try to find a female voice, fallback to first available
       const femaleVoice = voices.find(
         (voice) =>
           voice.name.toLowerCase().includes("female") ||
@@ -97,7 +97,6 @@ export default function StoryPage({ params }: Props) {
         url: window.location.href,
       });
     } catch (error) {
-      // Fallback to copying the URL
       await navigator.clipboard.writeText(window.location.href);
       toast.success("Link copied to clipboard!");
     }
@@ -107,10 +106,7 @@ export default function StoryPage({ params }: Props) {
     if (!story) return;
 
     try {
-      // Create text content with just the story content
       const content = cleanStoryContent(story.content);
-
-      // Create and download file
       const blob = new Blob([content], { type: "text/plain" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -184,17 +180,11 @@ export default function StoryPage({ params }: Props) {
     }
   };
 
-  // Function to format content with proper paragraphs
   const formatContent = (content: string) => {
-    // Clean the content first
     const cleanedContent = cleanStoryContent(content);
-
-    // If content is already HTML, return it as is
     if (cleanedContent.includes("<p>") || cleanedContent.includes("<div>")) {
       return cleanedContent;
     }
-
-    // Otherwise, split by double newlines and wrap in paragraph tags
     return cleanedContent
       .split(/\n\n+/)
       .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br>")}</p>`)
@@ -251,42 +241,8 @@ export default function StoryPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Audio Player
-      <div className="bg-muted/30 rounded-lg p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handlePlay}
-              className="rounded-full"
-            >
-              {isPlaying ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
-            <div className="flex items-center gap-2">
-              <Volume2 className="h-4 w-4 text-muted-foreground" />
-              <Slider
-                value={[volume]}
-                onValueChange={handleVolumeChange}
-                max={1}
-                step={0.1}
-                className="w-24"
-              />
-            </div>
-          </div>
-          <span className="text-sm text-muted-foreground">
-            {isPlaying ? "Reading..." : "Listen to the story"}
-          </span>
-        </div>
-      </div> */}
-
       <Separator className="mb-6" />
 
-      {/* Attachment-style container */}
       {story.image && (
         <div className="mb-8 max-w-md mr-auto">
           <div
@@ -324,7 +280,6 @@ export default function StoryPage({ params }: Props) {
         />
       )}
 
-      {/* Image modal */}
       <Dialog open={imageModalOpen} onOpenChange={setImageModalOpen}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden">
           <div className="relative">
@@ -352,7 +307,6 @@ export default function StoryPage({ params }: Props) {
         </DialogContent>
       </Dialog>
 
-      {/* Source image section */}
       <div className="bg-muted/30 rounded-lg p-6 mb-10">
         <h2 className="text-xl font-semibold mb-4">Source Image</h2>
         <div className="flex flex-col md:flex-row items-start gap-6">

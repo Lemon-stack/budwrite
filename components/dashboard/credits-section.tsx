@@ -2,13 +2,21 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
+import { CreditCard } from "lucide-react";
+import { Badge } from "../ui/badge";
 
 export function CreditsSection({ user }: { user: any }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [credits, setCredits] = useState<number | null>(null);
+  const { credits } = useAuth();
 
   const handleBuyCredits = async (productId: string, amount: number) => {
     if (!user) return;
@@ -38,103 +46,147 @@ export function CreditsSection({ user }: { user: any }) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Credits</CardTitle>
+    <Card className="w-full max-w-2xl mx-auto shadow-md">
+      <CardHeader className="pb-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div>
+            <CardTitle className="text-2xl font-bold">Credits</CardTitle>
+            <CardDescription>Purchase credits to use</CardDescription>
+          </div>
+          <div className="bg-primary/10 px-4 py-2 mr-auto md:mr-0 rounded-lg">
+            <p className="text-xs text-muted-foreground mb-1">
+              Current Balance
+            </p>
+            <p className="text-lg font-bold text-primary">{credits}</p>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Current Credits</p>
-              <p className="text-2xl font-bold">{credits}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              variant="outline"
+        <div className="grid gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <PricingCard
+              title="Starter"
+              credits={3}
+              price={1.0}
+              description="Quick try or casual users"
               onClick={() =>
                 handleBuyCredits(
                   process.env.NEXT_PUBLIC_POLAR_PRODUCT_3_CREDITS!,
                   3
                 )
               }
-              disabled={isLoading}
-            >
-              <div className="text-left">
-                <div className="font-semibold">Starter</div>
-                <div className="text-xs text-muted-foreground">
-                  3 credits • $1.00/credit
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Quick try or casual users
-                </div>
-              </div>
-            </Button>
-            <Button
-              variant="outline"
+              isLoading={isLoading}
+            />
+
+            <PricingCard
+              title="Creator"
+              credits={9}
+              price={0.78}
+              description="Light storytellers"
               onClick={() =>
                 handleBuyCredits(
                   process.env.NEXT_PUBLIC_POLAR_PRODUCT_9_CREDITS!,
                   9
                 )
               }
-              disabled={isLoading}
-            >
-              <div className="text-left">
-                <div className="font-semibold">Creator</div>
-                <div className="text-xs text-muted-foreground">
-                  9 credits • $0.78/credit
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Light storytellers
-                </div>
-              </div>
-            </Button>
-            <Button
-              variant="outline"
+              isLoading={isLoading}
+            />
+
+            <PricingCard
+              title="Pro"
+              credits={22}
+              price={0.68}
+              description="Frequent users"
               onClick={() =>
                 handleBuyCredits(
                   process.env.NEXT_PUBLIC_POLAR_PRODUCT_22_CREDITS!,
                   22
                 )
               }
-              disabled={isLoading}
-            >
-              <div className="text-left">
-                <div className="font-semibold">Pro</div>
-                <div className="text-xs text-muted-foreground">
-                  22 credits • $0.68/credit
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Frequent users
-                </div>
-              </div>
-            </Button>
-            <Button
-              variant="outline"
+              isLoading={isLoading}
+              popular
+            />
+
+            <PricingCard
+              title="Studio"
+              credits={50}
+              price={0.6}
+              description="Power creators & teams"
               onClick={() =>
                 handleBuyCredits(
                   process.env.NEXT_PUBLIC_POLAR_PRODUCT_50_CREDITS!,
                   50
                 )
               }
-              disabled={isLoading}
-            >
-              <div className="text-left">
-                <div className="font-semibold">Studio</div>
-                <div className="text-xs text-muted-foreground">
-                  50 credits • $0.60/credit
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Power creators & teams
-                </div>
-              </div>
-            </Button>
+              isLoading={isLoading}
+              bestValue
+            />
           </div>
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+interface PricingCardProps {
+  title: string;
+  credits: number;
+  price: number;
+  description: string;
+  onClick: () => void;
+  isLoading: boolean;
+  popular?: boolean;
+  bestValue?: boolean;
+}
+
+function PricingCard({
+  title,
+  credits,
+  price,
+  description,
+  onClick,
+  isLoading,
+  popular,
+  bestValue,
+}: PricingCardProps) {
+  return (
+    <div
+      className={`relative border rounded-xl p-5 transition-all hover:border-primary/50 hover:shadow-md ${popular ? "border-primary/70 bg-primary/5" : ""} ${bestValue ? "border-primary/70 bg-primary/5" : ""}`}
+    >
+      {popular && (
+        <Badge className="absolute -top-2 right-3 bg-primary">Popular</Badge>
+      )}
+      {bestValue && (
+        <Badge className="absolute -top-2 right-3 bg-primary">Best Value</Badge>
+      )}
+
+      <div className="flex flex-col h-full">
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-1">{title}</h3>
+          <div className="flex items-baseline gap-1 mb-1">
+            <span className="text-3xl font-bold">{credits}</span>
+            <span className="text-muted-foreground">credits</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-lg font-semibold">${price.toFixed(2)}</span>
+            <span className="text-muted-foreground text-sm">per credit</span>
+          </div>
+        </div>
+
+        <p className="text-sm text-muted-foreground mb-4">{description}</p>
+
+        <div className="mt-auto">
+          <Button
+            className="w-full"
+            onClick={onClick}
+            disabled={isLoading}
+            variant={popular || bestValue ? "default" : "outline"}
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            Purchase
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
