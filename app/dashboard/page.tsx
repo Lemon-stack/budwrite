@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto py-10">
-      <div className="hidden items-center justify-end gap-4 mb-20 ml-auto">
+      <div className="flex items-center justify-end gap-4 mb-20 ml-auto">
         <div className="bg-muted px-4 py-2 rounded-lg">
           <span className="text-sm text-muted-foreground">Credits: </span>
           <span className="font-semibold">{credits}</span>

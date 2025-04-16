@@ -34,12 +34,14 @@ type Story = {
   created_at: string;
 };
 
+// Update Props to define params as a Promise
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default function StoryPage({ params }: Props) {
-  const { id } = params;
+  // Use state to store the resolved id
+  const [id, setId] = useState<string | null>(null);
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageModalOpen, setImageModalOpen] = useState(false);
@@ -49,8 +51,18 @@ export default function StoryPage({ params }: Props) {
   );
   const [volume, setVolume] = useState(1);
 
+  // Resolve the params Promise to get the id
+  useEffect(() => {
+    async function resolveParams() {
+      const resolvedParams = await params;
+      setId(resolvedParams.id);
+    }
+    resolveParams();
+  }, [params]);
+
   useEffect(() => {
     async function loadStory() {
+      if (!id) return; // Wait until id is resolved
       try {
         const { data, error } = await supabase
           .from("stories")
@@ -189,7 +201,7 @@ export default function StoryPage({ params }: Props) {
       .join("");
   };
 
-  if (loading) {
+  if (loading || id === null) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
