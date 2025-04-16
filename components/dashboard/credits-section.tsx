@@ -149,6 +149,8 @@ function PricingCard({
   popular,
   bestValue,
 }: PricingCardProps) {
+  const totalAmount = Math.round(credits * price);
+
   return (
     <div
       className={`relative border rounded-xl p-5 transition-all hover:border-primary/50 hover:shadow-md ${popular ? "border-primary/70 bg-primary/5" : ""} ${bestValue ? "border-primary/70 bg-primary/5" : ""}`}
@@ -167,9 +169,17 @@ function PricingCard({
             <span className="text-3xl font-bold">{credits}</span>
             <span className="text-muted-foreground">credits</span>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-lg font-semibold">${price.toFixed(2)}</span>
-            <span className="text-muted-foreground text-sm">per credit</span>
+          <div className="flex flex-col gap-1">
+            <div className="hidden items-center gap-1">
+              <span className="text-lg font-semibold">${price.toFixed(2)}</span>
+              <span className="text-muted-foreground text-sm">per credit</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-lg font-semibold">${totalAmount}</span>
+              <span className="hidden text-muted-foreground text-sm">
+                total
+              </span>
+            </div>
           </div>
         </div>
 
@@ -182,8 +192,8 @@ function PricingCard({
             disabled={isLoading}
             variant={popular || bestValue ? "default" : "outline"}
           >
-            <CreditCard className="mr-2 h-4 w-4" />
-            Purchase
+            <CreditCard className="h-4 w-4 mr-2" />
+            Buy Now
           </Button>
         </div>
       </div>
