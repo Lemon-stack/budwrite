@@ -38,7 +38,7 @@ export default function StoryForm({
 
   // Calculate how many images the user can upload based on their credits
   // Each image costs 1 credit, and story generation costs 1 credit
-  const maxImages = Math.max(0, (credits || 0) - 1);
+  const maxImages = Math.min(2, Math.max(0, (credits || 0) - 1));
   const canUploadMore = images.length < maxImages;
 
   const handleFileSelectWithCredits = (
@@ -117,18 +117,12 @@ export default function StoryForm({
 
               {/* Credits info */}
               <div className="text-sm text-muted-foreground">
-                {maxImages > 0 ? (
-                  <p>
-                    You can upload up to {maxImages} image(s) with your current
-                    credits. Each image costs 1 credit, and story generation
-                    costs 1 credit.
-                  </p>
-                ) : (
+                {credits && credits < 3 ? (
                   <p className="text-red-500">
                     You don't have enough credits to create a story. Please
                     purchase more credits.
                   </p>
-                )}
+                ) : null}
               </div>
 
               {/* Input field */}

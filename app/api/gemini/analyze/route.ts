@@ -32,7 +32,7 @@ async function analyzeWithRetry(
           content: [
             {
               type: "text",
-              text: "Analyze this image and provide a detailed description of what you see. Focus on the main subject, setting, and any notable details. Be descriptive and creative in your analysis.",
+              text: "Analyze this image focusing on key elements: main subject, setting, and important details. Keep the description concise but informative.",
             },
             {
               type: "image_url",
