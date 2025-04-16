@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { cleanStoryContent } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
+import BookDisplayStory from "@/components/dashboard/book-display-story";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -253,40 +254,16 @@ export default function StoryPage({ params }: Props) {
 
       <Separator className="mb-6" />
 
-      {story.image && (
-        <div className="mb-8 max-w-md mr-auto">
-          <div
-            className="border rounded-lg overflow-hidden bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer group"
-            onClick={() => setImageModalOpen(true)}
-          >
-            <div className="flex items-center px-3 py-2 border-b bg-muted/30">
-              <ImageIcon className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span className="text-sm font-medium">Story Image</span>
-              <span className="text-xs text-muted-foreground ml-auto flex items-center gap-1">
-                <Eye className="h-3 w-3" />
-                Preview
-              </span>
-            </div>
-            <div className="p-3">
-              <img
-                src={story.image}
-                alt="Story preview"
-                className="w-full h-32 object-cover rounded opacity-90 group-hover:opacity-100 transition-opacity"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
       {story.status === "generating" ? (
         <div className="flex flex-col items-center justify-center py-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
           <p className="text-muted-foreground">Generating your story...</p>
         </div>
       ) : (
-        <div
-          className="prose prose-purple max-w-none mb-10 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: formatContent(story.content) }}
+        <BookDisplayStory
+          content={story.content}
+          title={story.title.replace(/\*/g, "")}
+          image={story.image}
         />
       )}
 
