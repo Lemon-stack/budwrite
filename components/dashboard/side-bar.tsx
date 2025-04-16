@@ -55,38 +55,48 @@ export default function DasboardSidebar() {
       <SidebarHeader className="h-16 z-20 justify-center border-b border-sidebar-border flex items-start px-4">
         <Logo />
       </SidebarHeader>
-      <SidebarContent>
-        {/* Navigation Links */}
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu className="z-20">
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="flex flex-col">
+        {/* Fixed Navigation Links */}
+        <div className="flex-none">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu className="z-20">
+                {navItems.map((item) => (
+                  <SidebarMenuItem key={item.title} className="z-20">
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <Link href={item.href}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        <SidebarSeparator />
+          <SidebarSeparator />
+        </div>
 
-        {/* Recent Stories History */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="flex justify-between items-center">
-            <span>Story History</span>
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <StoryHistory />
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Fixed Story History Label */}
+        <div className="flex-none">
+          <SidebarGroup className="py-0">
+            <SidebarGroupLabel className="flex py-0 justify-between items-center">
+              <span>Story History</span>
+            </SidebarGroupLabel>
+          </SidebarGroup>
+        </div>
+
+        {/* Scrollable Story History Content */}
+        <div className="flex-1 overflow-auto">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <StoryHistory />
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </div>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">

@@ -12,14 +12,14 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    const { description, title, imageUrl } = await request.json();
-    console.log("Received request with:", { description, title, imageUrl });
+    const { descriptions, title, imageUrls } = await request.json();
+    console.log("Received request with:", { descriptions, title, imageUrls });
 
-    if (!description || !title || !imageUrl) {
+    if (!descriptions || !title || !imageUrls || descriptions.length === 0) {
       console.error("Missing required fields:", {
-        description,
+        descriptions,
         title,
-        imageUrl,
+        imageUrls,
       });
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -34,11 +34,11 @@ export async function POST(request: Request) {
         {
           role: "system",
           content:
-            "You are a creative storyteller. Create an engaging story based on the image description and title. The story should be imaginative, well-structured, and suitable for all ages.",
+            "You are a creative storyteller. Create an engaging story based on the image descriptions and title. The story should be imaginative, well-structured, and suitable for all ages. Incorporate elements from all the images into a cohesive narrative.",
         },
         {
           role: "user",
-          content: `Create a story based on this image description: "${description}"\n\nTitle: ${title}\n\nPlease write a creative and engaging story.`,
+          content: `Create a story based on these image descriptions:\n\n${descriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nTitle: ${title}\n\nPlease write a creative and engaging story that incorporates elements from all the images.`,
         },
       ],
       max_tokens: 1000,

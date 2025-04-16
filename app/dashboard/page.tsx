@@ -78,7 +78,7 @@ export default function DashboardPage() {
         </Link>
       </div>
       <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-200 mb-6">
-        What do you want to create today?
+        What story do you want to create today?
       </h2>
 
       <StoryForm

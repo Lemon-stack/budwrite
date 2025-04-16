@@ -23,7 +23,7 @@ async function analyzeWithRetry(
   retries = MAX_RETRIES
 ): Promise<string> {
   try {
-    console.log("Sending image to LLaMA for analysis...");
+    // console.log("Sending image to LLaMA for analysis...");
     const completion = await openai.chat.completions.create({
       model: "meta-llama/llama-4-maverick:free",
       messages: [
@@ -66,9 +66,9 @@ async function analyzeWithRetry(
 
 export async function POST(request: Request) {
   try {
-    console.log("Received request to analyze image");
+    // console.log("Received request to analyze image");
     const { imageUrl } = await request.json();
-    console.log("Image URL length:", imageUrl?.length || 0);
+    // console.log("Image URL length:", imageUrl?.length || 0);
 
     if (!imageUrl) {
       console.error("No image URL provided");
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     }
 
     const description = await analyzeWithRetry(imageUrl);
-    console.log("Generated description length:", description.length);
+    // console.log("Generated description length:", description.length);
 
     return NextResponse.json({ description });
   } catch (error) {

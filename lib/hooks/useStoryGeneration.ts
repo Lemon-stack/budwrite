@@ -3,6 +3,7 @@ import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const BUCKET_NAME = "stories";
+const MAX_IMAGES = 2;
 
 export function useStoryGeneration() {
   const { supabase, refreshCredits } = useAuth();
@@ -65,7 +66,7 @@ export function useStoryGeneration() {
     }
   };
 
-  const checkCredits = async (userId: string) => {
+  const checkCredits = async (userId: string, requiredCredits: number) => {
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("credits")
@@ -81,50 +82,56 @@ export function useStoryGeneration() {
       throw new Error("User not found");
     }
 
-    if (userData.credits <= 0) {
+    if (userData.credits < requiredCredits) {
       toast.error(
-        "Insufficient credits. Please purchase more credits to continue."
+        `Insufficient credits. You need ${requiredCredits} credits to proceed. Please purchase more credits to continue.`
       );
+      throw new Error("Insufficient credits");
     }
 
     return userData.credits;
   };
 
-  const generateStoryWithAI = async (imageUrl: string, title: string) => {
+  const generateStoryWithAI = async (imageUrls: string[], title: string) => {
     console.log("Starting story generation with AI");
-    console.log("Image URL:", imageUrl);
+    console.log("Image URLs:", imageUrls);
     console.log("Title:", title);
 
     try {
-      console.log("Making analyze request to /api/gemini/analyze");
-      const analyzeResponse = await fetch("/api/gemini/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl }),
-      });
+      // Analyze all images
+      const imageDescriptions = await Promise.all(
+        imageUrls.map(async (imageUrl) => {
+          console.log("Making analyze request to /api/gemini/analyze");
+          const analyzeResponse = await fetch("/api/gemini/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageUrl }),
+          });
 
-      console.log("Analyze response status:", analyzeResponse.status);
-      if (!analyzeResponse.ok) {
-        const errorText = await analyzeResponse.text();
-        console.error("Analyze response error:", errorText);
-        throw new Error(
-          `Failed to analyze image: ${analyzeResponse.status} ${errorText}`
-        );
-      }
+          if (!analyzeResponse.ok) {
+            const errorText = await analyzeResponse.text();
+            console.error("Analyze response error:", errorText);
+            throw new Error(
+              `Failed to analyze image: ${analyzeResponse.status} ${errorText}`
+            );
+          }
 
-      const analyzeData = await analyzeResponse.json();
-      console.log("Analyze response data:", analyzeData);
-      const { description } = analyzeData;
-      console.log("Image description:", description);
+          const analyzeData = await analyzeResponse.json();
+          return analyzeData.description;
+        })
+      );
 
       console.log("Making generate request to /api/generate-story");
       const storyResponse = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description, title, imageUrl }),
+        body: JSON.stringify({
+          descriptions: imageDescriptions,
+          title,
+          imageUrls,
+        }),
       });
 
-      console.log("Generate response status:", storyResponse.status);
       if (!storyResponse.ok) {
         const errorText = await storyResponse.text();
         console.error("Generate response error:", errorText);
@@ -146,12 +153,14 @@ export function useStoryGeneration() {
     }
   };
 
-  const generateStory = async (imageFile: File, title: string) => {
+  const generateStory = async (imageFiles: File[], title: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log("Starting story generation process");
+      if (imageFiles.length > MAX_IMAGES) {
+        throw new Error(`Maximum ${MAX_IMAGES} images allowed`);
+      }
 
       const {
         data: { user },
@@ -160,31 +169,29 @@ export function useStoryGeneration() {
         console.error("No authenticated user found");
         throw new Error("User must be authenticated");
       }
-      console.log("User authenticated:", user.id);
 
-      const credits = await checkCredits(user.id);
-      console.log("User credits:", credits);
-      if (credits <= 0) {
-        console.error("Insufficient credits for user:", user.id);
-        toast.error("Insufficient credits");
-        throw new Error("Insufficient credits");
-      }
+      // Calculate required credits: 1 per image + 1 for story generation
+      const requiredCredits = imageFiles.length + 1;
+      const credits = await checkCredits(user.id, requiredCredits);
 
-      console.log("Starting image upload");
-      const imageUrl = await uploadImage(imageFile);
-      console.log("Image uploaded successfully:", imageUrl);
+      // Upload all images
+      const imageUrls = await Promise.all(
+        imageFiles.map((file) => uploadImage(file))
+      );
 
-      console.log("Verifying uploaded image");
-      const imageResponse = await fetch(imageUrl);
-      if (!imageResponse.ok) {
-        throw new Error("Failed to verify uploaded image");
-      }
+      // Verify all uploaded images
+      await Promise.all(
+        imageUrls.map((url) =>
+          fetch(url).then((res) => {
+            if (!res.ok) throw new Error("Failed to verify uploaded image");
+          })
+        )
+      );
 
-      console.log("Generating story with AI");
-      const story = await generateStoryWithAI(imageUrl, title);
-      console.log("Story generated successfully");
+      // Generate story
+      const story = await generateStoryWithAI(imageUrls, title);
 
-      console.log("Saving story to database");
+      // Save story to database
       const { data: createdStory, error: storyError } = await supabase
         .from("stories")
         .insert([
@@ -192,7 +199,8 @@ export function useStoryGeneration() {
             user_id: user.id,
             title,
             content: story,
-            image: imageUrl,
+            image: imageUrls[0], // Store first image as main image
+            additional_images: imageUrls.slice(1), // Store additional images
             status: "completed",
             created_at: new Date().toISOString(),
           },
@@ -210,9 +218,10 @@ export function useStoryGeneration() {
         throw new Error("Failed to save story");
       }
 
+      // Deduct credits
       const { error: creditError } = await supabase
         .from("users")
-        .update({ credits: credits - 1 })
+        .update({ credits: credits - requiredCredits })
         .eq("id", user.id);
 
       if (creditError) {

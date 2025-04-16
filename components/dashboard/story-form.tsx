@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImagePlus, Loader2, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/auth";
+import { toast } from "sonner";
 
 interface StoryFormProps {
   handleSubmit: (e: React.FormEvent) => void;
@@ -32,6 +34,30 @@ export default function StoryForm({
   isSubmitting,
   isImageLoading = false,
 }: StoryFormProps) {
+  const { credits } = useAuth();
+
+  // Calculate how many images the user can upload based on their credits
+  // Each image costs 1 credit, and story generation costs 1 credit
+  const maxImages = Math.max(0, (credits || 0) - 1);
+  const canUploadMore = images.length < maxImages;
+
+  const handleFileSelectWithCredits = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newImagesCount = images.length + files.length;
+    if (newImagesCount > maxImages) {
+      toast.error(
+        `You can only upload ${maxImages} image(s) with your current credits`
+      );
+      return;
+    }
+
+    handleFileSelect(e);
+  };
+
   return (
     <div className="w-full max-w-5xl mx-auto">
       <form onSubmit={handleSubmit} className="w-full">
@@ -42,8 +68,12 @@ export default function StoryForm({
               <div className="flex items-center gap-3 overflow-x-auto pb-2">
                 {/* Upload button */}
                 <div
-                  className="flex-shrink-0 h-16 w-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
+                  className={`flex-shrink-0 h-16 w-16 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors ${
+                    canUploadMore
+                      ? "cursor-pointer hover:bg-muted/50"
+                      : "cursor-not-allowed opacity-50"
+                  }`}
+                  onClick={() => canUploadMore && fileInputRef.current?.click()}
                 >
                   {isImageLoading ? (
                     <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
@@ -55,7 +85,7 @@ export default function StoryForm({
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={handleFileSelect}
+                    onChange={handleFileSelectWithCredits}
                     className="hidden"
                   />
                 </div>
@@ -85,6 +115,22 @@ export default function StoryForm({
                 ))}
               </div>
 
+              {/* Credits info */}
+              <div className="text-sm text-muted-foreground">
+                {maxImages > 0 ? (
+                  <p>
+                    You can upload up to {maxImages} image(s) with your current
+                    credits. Each image costs 1 credit, and story generation
+                    costs 1 credit.
+                  </p>
+                ) : (
+                  <p className="text-red-500">
+                    You don't have enough credits to create a story. Please
+                    purchase more credits.
+                  </p>
+                )}
+              </div>
+
               {/* Input field */}
               <div className="flex items-center gap-4">
                 <div className="flex-1">
@@ -103,7 +149,10 @@ export default function StoryForm({
                   type="submit"
                   className="gap-2 flex-shrink-0"
                   disabled={
-                    isSubmitting || images.length === 0 || !title.trim()
+                    isSubmitting ||
+                    images.length === 0 ||
+                    !title.trim() ||
+                    !canUploadMore
                   }
                 >
                   {isSubmitting ? (

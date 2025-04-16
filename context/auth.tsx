@@ -61,10 +61,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw sessionError;
         }
 
-        console.log("Session:", session);
+        // console.log("Session:", session);
 
         if (session?.user) {
-          console.log("User found in session:", session.user);
+          // console.log("User found in session:", session.user);
           // Check if user exists in our database
           const { data: existingUser, error: fetchError } = await supabase
             .from("users")
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (fetchError) {
             if (fetchError.code === "PGRST116") {
-              console.log("User not found in database, creating new user...");
+              // console.log("User not found in database, creating new user...");
               // User doesn't exist, create new user
               const randomName = `user${Math.floor(Math.random() * 10000)}`;
               const { data: newUser, error: createError } = await supabase
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     userName: randomName,
                     userType: "free",
                     createdAt: new Date().toISOString(),
-                    credits: 1,
+                    credits: 2,
                   },
                 ])
                 .select()
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.error("Error creating user:", createError);
                 throw createError;
               }
-              console.log("New user created:", newUser);
+              // console.log("New user created:", newUser);
               setUser(newUser);
               setCredits(newUser.credits);
             } else {
@@ -104,17 +104,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               throw fetchError;
             }
           } else if (existingUser) {
-            console.log("Existing user found:", existingUser);
+            // console.log("Existing user found:", existingUser);
             setUser(existingUser);
             setCredits(existingUser.credits);
           }
         } else {
-          console.log("No session found");
+          // console.log("No session found");
           setUser(null);
           setCredits(null);
         }
-      } catch (error) {
-        console.error("Error in auth context:", error);
+      } catch {
+        // console.error("Error in auth context:", error);
         setUser(null);
         setCredits(null);
       } finally {

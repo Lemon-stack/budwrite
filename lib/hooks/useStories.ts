@@ -79,6 +79,11 @@ export function useStories() {
         (story) => !existingIds.has(story.id)
       );
 
+      if (newStories.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
       setStories((prev) => [...prev, ...newStories]);
       setHasMore(data.length === pageSize);
       setPage((prev) => prev + 1);
