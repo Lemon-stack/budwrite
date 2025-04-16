@@ -177,7 +177,7 @@ export default function LandingPage() {
                 className="bg-purple-500 hover:bg-purple-600 text-white px-8 transform transition-transform hover:scale-105"
                 asChild
               >
-                <Link href="/create">Get Started For Free</Link>
+                <Link href="/dashboard">Get Started For Free</Link>
               </Button>
             </div>
           </ScrollReveal>

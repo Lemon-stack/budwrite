@@ -8,7 +8,7 @@ import { CreditsSection } from "@/components/dashboard/credits-section";
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  console.log("user", user);
+  // console.log("user", user);
   const router = useRouter();
 
   // useEffect(() => {

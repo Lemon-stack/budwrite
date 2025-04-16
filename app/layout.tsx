@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "PictoStory",
   description: "Generate stories from your images",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

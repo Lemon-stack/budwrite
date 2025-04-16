@@ -1,17 +1,9 @@
-import Image from "next/image";
-
 interface Props {
   text?: string;
   icon?: string;
 }
 const Logo = ({ text, icon }: Props) => (
   <div className="flex items-end justify-center gap-1">
-    {/* <Image
-      src={"/star-sparkle.svg"}
-      alt="Pictostory logo"
-      width={"200"}
-      height={"200"}
-    /> */}
     <svg
       xmlns="http://www.w3.org/2000/svg"
       height="29"
