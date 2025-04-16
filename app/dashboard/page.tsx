@@ -56,7 +56,7 @@ export default function DashboardPage() {
         .then((res) => res.blob())
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
 
-      const storyId = await generateNewStory(imageFile, title);
+      const storyId = await generateNewStory([imageFile], title);
       router.push(`/dashboard/story/${storyId}`);
     } catch (err) {
       console.error("Error creating story:", err);

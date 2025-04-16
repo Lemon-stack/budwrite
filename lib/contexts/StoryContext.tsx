@@ -8,7 +8,7 @@ type StoryContextType = {
   isLoading: boolean;
   isImageLoading: boolean;
   error: string | null;
-  generateNewStory: (file: File, title: string) => Promise<string>;
+  generateNewStory: (files: File[], title: string) => Promise<string>;
   clearInputs: () => void;
 };
 
@@ -24,10 +24,10 @@ export function StoryProvider({ children }: { children: ReactNode }) {
     setCurrentStory(null);
   };
 
-  const generateNewStory = async (imageFile: File, title: string) => {
+  const generateNewStory = async (imageFiles: File[], title: string) => {
     try {
       // console.log("Starting story generation with title:", title);
-      const storyId = await generateStory(imageFile, title);
+      const storyId = await generateStory(imageFiles, title);
       // console.log("Received story ID:", storyId);
 
       // Validate story ID
