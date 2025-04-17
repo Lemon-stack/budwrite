@@ -51,7 +51,7 @@ export function FloatingCta() {
 
             <div className="mb-3 text-lg font-bold text-white">Ready to create your first Story?</div>
             <p className="mb-4 text-sm text-white/70">
-              Join thousands of creators who are already making mind-blowing stories.
+              Join other of creators who are already making mind-blowing stories.
             </p>
 
             <div className="flex items-center gap-3">

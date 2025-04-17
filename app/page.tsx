@@ -19,6 +19,7 @@ import { TestimonialCard } from "@/components/landing-page/testimonial-card";
 import { StoryDemo } from "@/components/landing-page/story-demo";
 import Header from "@/components/landing-page/header";
 import MarqueeTestimonials from "@/components/landing-page/testimonials-section";
+import Logo from "@/components/logo";
 export default function LandingPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -190,10 +191,7 @@ export default function LandingPage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div>
               <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-500 text-white">
-                  <BookOpen className="h-4 w-4" />
-                </div>
-                <span className="text-lg font-bold text-white">PictoStory</span>
+                <Logo text="text-zinc-300" />
               </Link>
               <p className="mt-4 text-sm text-white/70">
                 Transform your images into captivating stories with AI

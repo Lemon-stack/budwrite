@@ -30,32 +30,32 @@ const TestimonialCard = ({ quote, author, role }: TestimonialCardProps) => {
 };
 
 const MarqueeTestimonials = () => {
-  const testimonials = [
-    {
-      quote:
-        "PictoStory has completely transformed how I share my travel experiences. The AI-generated stories are so engaging!",
-      author: "Sarah Johnson",
-      role: "Travel Blogger",
-    },
-    {
-      quote:
-        "As a photographer, this tool helps me add context and emotion to my images in ways I never thought possible.",
-      author: "Michael Chen",
-      role: "Professional Photographer",
-    },
-    {
-      quote:
-        "The stories generated are so creative and well-written. It's like having a professional writer at my fingertips.",
-      author: "Emma Rodriguez",
-      role: "Content Creator",
-    },
-    {
-      quote:
-        "I use PictoStory for my social media content and the engagement has skyrocketed. My followers love the stories!",
-      author: "David Kim",
-      role: "Social Media Manager",
-    },
-  ];
+  const [testimonials, setTestimonials] = useState<TestimonialCardProps[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await fetch("/api/testimonials");
+        if (!response.ok) {
+          throw new Error("Failed to fetch testimonials");
+        }
+        const data = await response.json();
+        if (data.testimonials && data.testimonials.length > 0) {
+          setTestimonials(data.testimonials);
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch testimonials"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
 
   const marqueeRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -75,6 +75,11 @@ const MarqueeTestimonials = () => {
 
     marqueeRef.current.style.transform = `translateX(${x.current}px)`;
   });
+
+  // If there are no testimonials, don't render the section
+  if (isLoading || error || testimonials.length === 0) {
+    return null;
+  }
 
   // Duplicate testimonials to create a seamless loop
   const duplicatedTestimonials = [...testimonials, ...testimonials];
