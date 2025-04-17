@@ -36,7 +36,7 @@ export function useStoryGeneration() {
 
       validateImage(file);
       const fileName = `${user.id}-${Date.now()}-${file.name}`;
-      console.log("Uploading file:", fileName);
+      // console.log("Uploading file:", fileName);
 
       toast.info("Uploading image...");
       const { data, error: uploadError } = await supabase.storage
@@ -47,7 +47,7 @@ export function useStoryGeneration() {
         });
 
       if (uploadError) {
-        console.error("Upload error:", uploadError);
+        // console.error("Upload error:", uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
@@ -59,7 +59,7 @@ export function useStoryGeneration() {
         throw new Error("Failed to generate public URL");
       }
 
-      console.log("Generated public URL:", urlData.publicUrl);
+      // console.log("Generated public URL:", urlData.publicUrl);
       return urlData.publicUrl;
     } finally {
       setIsImageLoading(false);
@@ -74,7 +74,7 @@ export function useStoryGeneration() {
       .single();
 
     if (userError) {
-      console.error("Error checking credits:", userError);
+      // console.error("Error checking credits:", userError);
       throw new Error("Failed to check credits");
     }
 
@@ -84,7 +84,7 @@ export function useStoryGeneration() {
 
     if (userData.credits < requiredCredits) {
       toast.error(
-        `Insufficient credits. You need ${requiredCredits} credits to proceed. Please purchase more credits to continue.`
+        "Insufficient credits. Please purchase more credits to continue."
       );
       throw new Error("Insufficient credits");
     }
@@ -93,15 +93,15 @@ export function useStoryGeneration() {
   };
 
   const generateStoryWithAI = async (imageUrls: string[], title: string) => {
-    console.log("Starting story generation with AI");
-    console.log("Image URLs:", imageUrls);
-    console.log("Title:", title);
+    // console.log("Starting story generation with AI");
+    // console.log("Image URLs:", imageUrls);
+    // console.log("Title:", title);
 
     try {
       // Analyze all images
       const imageDescriptions = await Promise.all(
         imageUrls.map(async (imageUrl) => {
-          console.log("Making analyze request to /api/gemini/analyze");
+          // console.log("Making analyze request to /api/gemini/analyze");
           const analyzeResponse = await fetch("/api/gemini/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -110,7 +110,7 @@ export function useStoryGeneration() {
 
           if (!analyzeResponse.ok) {
             const errorText = await analyzeResponse.text();
-            console.error("Analyze response error:", errorText);
+            // console.error("Analyze response error:", errorText);
             throw new Error(
               `Failed to analyze image: ${analyzeResponse.status} ${errorText}`
             );
@@ -121,7 +121,7 @@ export function useStoryGeneration() {
         })
       );
 
-      console.log("Making generate request to /api/generate-story");
+      // console.log("Making generate request to /api/generate-story");
       const storyResponse = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -134,21 +134,21 @@ export function useStoryGeneration() {
 
       if (!storyResponse.ok) {
         const errorText = await storyResponse.text();
-        console.error("Generate response error:", errorText);
+        // console.error("Generate response error:", errorText);
         throw new Error(
           `Failed to generate story: ${storyResponse.status} ${errorText}`
         );
       }
 
       const storyData = await storyResponse.json();
-      console.log("Story generation successful");
+      // console.log("Story generation successful");
       return storyData.content;
     } catch (error) {
-      console.error("Error in generateStoryWithAI:", {
-        error,
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-      });
+      // console.error("Error in generateStoryWithAI:", {
+      //   error,
+      //   message: error instanceof Error ? error.message : "Unknown error",
+      //   stack: error instanceof Error ? error.stack : undefined,
+      // });
       throw error;
     }
   };
@@ -205,31 +205,15 @@ export function useStoryGeneration() {
         .single();
 
       if (storyError) {
-        console.error("Story save error details:", {
-          error: storyError,
-          storyData: {
-            user_id: user.id,
-            title,
-            content: story,
-            image: imageUrl,
-          },
-        });
-        toast.error(`Failed to save story: ${storyError.message}`);
-        throw new Error(`Failed to save story: ${storyError.message}`);
+        toast.error("We couldn't save your story. Please try again.");
+        throw new Error("Failed to save story");
       }
 
       if (!createdStory?.id) {
-        console.error("Story creation failed - no ID returned:", {
-          createdStory,
-          storyData: {
-            user_id: user.id,
-            title,
-            content: story,
-            image: imageUrl,
-          },
-        });
-        toast.error("Failed to save story: No story ID returned");
-        throw new Error("Failed to save story: No story ID returned");
+        toast.error(
+          "Something went wrong while creating your story. Please try again."
+        );
+        throw new Error("Failed to save story");
       }
 
       // Deduct credits
@@ -239,29 +223,10 @@ export function useStoryGeneration() {
         .eq("id", user.id);
 
       if (creditError) {
-        console.error("Credit update error:", {
-          error: creditError,
-          userId: user.id,
-          currentCredits: credits,
-          requiredCredits,
-          newCredits: credits - requiredCredits,
-        });
-
         // Attempt to delete the story
-        const { error: deleteError } = await supabase
-          .from("stories")
-          .delete()
-          .eq("id", createdStory.id);
-
-        if (deleteError) {
-          console.error(
-            "Failed to delete story after credit update failure:",
-            deleteError
-          );
-        }
-
-        toast.error(`Failed to update credits: ${creditError.message}`);
-        throw new Error(`Failed to update credits: ${creditError.message}`);
+        await supabase.from("stories").delete().eq("id", createdStory.id);
+        toast.error("We couldn't update your credits. Please try again.");
+        throw new Error("Failed to update credits");
       }
 
       // Refresh credits in the auth context
@@ -269,11 +234,6 @@ export function useStoryGeneration() {
 
       return createdStory.id;
     } catch (error) {
-      console.error("Error in generateStory:", {
-        error,
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-      });
       const errorMessage =
         error instanceof Error ? error.message : "An error occurred";
       setError(errorMessage);
