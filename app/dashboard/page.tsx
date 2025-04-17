@@ -5,50 +5,45 @@ import { useRouter } from "next/navigation";
 import { useStory } from "@/lib/contexts/StoryContext";
 import StoryForm from "@/components/dashboard/story-form";
 
-
 export default function DashboardPage() {
   const router = useRouter();
   const { generateNewStory, isLoading, isImageLoading, clearInputs } =
     useStory();
   const [title, setTitle] = useState("");
-  const [images, setImages] = useState<Array<{ id: string; preview: string }>>(
-    []
+  const [images, setImages] = useState<{ id: string; preview: string } | null>(
+    null
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImages((prev) => [
-          ...prev,
-          {
-            id: Math.random().toString(36).substr(2, 9),
-            preview: reader.result as string,
-          },
-        ]);
-      };
-      reader.readAsDataURL(file);
-    });
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImages({
+        id: Math.random().toString(36).substr(2, 9),
+        preview: reader.result as string,
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
-  const removeImage = (id: string) => {
-    setImages((prev) => prev.filter((img) => img.id !== id));
+  const removeImage = () => {
+    setImages(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (images.length === 0 || !title) return;
+    if (!images || !title) return;
 
     try {
       setTitle("");
-      setImages([]);
+      setImages(null);
       clearInputs();
 
-      const imageFile = await fetch(images[0].preview)
+      const imageFile = await fetch(images.preview)
         .then((res) => res.blob())
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
 

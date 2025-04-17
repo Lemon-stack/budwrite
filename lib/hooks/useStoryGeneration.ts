@@ -162,6 +162,10 @@ export function useStoryGeneration() {
         throw new Error("Please select an image");
       }
 
+      if (imageFiles.length > 1) {
+        throw new Error("Please select only one image");
+      }
+
       // Only use the first image
       const imageFile = imageFiles[0];
 

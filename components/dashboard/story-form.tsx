@@ -12,11 +12,8 @@ interface StoryFormProps {
   handleSubmit: (e: React.FormEvent) => void;
   handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
-  images: Array<{
-    id: string;
-    preview: string;
-  }>;
-  removeImage: (id: string) => void;
+  images: { id: string; preview: string } | null;
+  removeImage: () => void;
   title: string;
   setTitle: (title: string) => void;
   isSubmitting: boolean;
@@ -36,10 +33,9 @@ export default function StoryForm({
 }: StoryFormProps) {
   const { credits } = useAuth();
 
-  // Calculate how many images the user can upload based on their credits
+  // Calculate if user can upload an image based on their credits
   // Each image costs 1 credit, and story generation costs 1 credit
-  const maxImages = Math.min(2, Math.max(0, (credits || 0) - 1));
-  const canUploadMore = images.length < maxImages;
+  const canUpload = (credits || 0) >= 2;
 
   const handleFileSelectWithCredits = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -47,11 +43,8 @@ export default function StoryForm({
     const files = e.target.files;
     if (!files) return;
 
-    const newImagesCount = images.length + files.length;
-    if (newImagesCount > maxImages) {
-      toast.error(
-        `You can only upload ${maxImages} image(s) with your current credits`
-      );
+    if (!canUpload) {
+      toast.error("You don't have enough credits to create a story");
       return;
     }
 
@@ -69,11 +62,13 @@ export default function StoryForm({
                 {/* Upload button */}
                 <div
                   className={`flex-shrink-0 h-16 w-16 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors ${
-                    canUploadMore
+                    canUpload && !images
                       ? "cursor-pointer hover:bg-muted/50"
                       : "cursor-not-allowed opacity-50"
                   }`}
-                  onClick={() => canUploadMore && fileInputRef.current?.click()}
+                  onClick={() =>
+                    canUpload && !images && fileInputRef.current?.click()
+                  }
                 >
                   {isImageLoading ? (
                     <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
@@ -84,20 +79,16 @@ export default function StoryForm({
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    multiple
                     onChange={handleFileSelectWithCredits}
                     className="hidden"
                   />
                 </div>
 
-                {/* Image previews */}
-                {images.map((image) => (
-                  <div
-                    key={image.id}
-                    className="relative flex-shrink-0 h-16 w-16 rounded-lg overflow-hidden group"
-                  >
+                {/* Image preview */}
+                {images && (
+                  <div className="relative flex-shrink-0 h-16 w-16 rounded-lg overflow-hidden group">
                     <img
-                      src={image.preview || "/placeholder.svg"}
+                      src={images.preview || "/placeholder.svg"}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
@@ -105,19 +96,19 @@ export default function StoryForm({
                     {/* Remove button */}
                     <button
                       type="button"
-                      onClick={() => removeImage(image.id)}
+                      onClick={removeImage}
                       className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                       aria-label="Remove image"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </div>
-                ))}
+                )}
               </div>
 
               {/* Credits info */}
               <div className="text-sm text-muted-foreground">
-                {credits && credits < 3 ? (
+                {credits && credits < 2 ? (
                   <p className="text-red-500">
                     You don't have enough credits to create a story. Please
                     purchase more credits.
@@ -143,10 +134,7 @@ export default function StoryForm({
                   type="submit"
                   className="w-full sm:w-auto gap-2"
                   disabled={
-                    isSubmitting ||
-                    images.length === 0 ||
-                    !title.trim() ||
-                    !canUploadMore
+                    isSubmitting || !images || !title.trim() || !canUpload
                   }
                 >
                   {isSubmitting ? (
