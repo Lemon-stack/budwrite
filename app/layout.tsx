@@ -4,7 +4,7 @@ import "./globals.css";
 import { StoryProvider } from "@/lib/contexts/StoryContext";
 import { AuthProvider } from "@/context/auth";
 import type { Metadata } from "next";
-
+import { Analytics } from "@vercel/analytics/react";
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -47,6 +47,7 @@ export default function RootLayout({
             </StoryProvider>
           </AuthProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

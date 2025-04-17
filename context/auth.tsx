@@ -19,6 +19,7 @@ interface AuthContextType {
   supabase: ReturnType<typeof createClient>;
   credits: number | null;
   refreshCredits: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -27,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   supabase: createClient(),
   credits: null,
   refreshCredits: async () => {},
+  signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -43,6 +45,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq("id", user.id)
       .single();
     setCredits(data?.credits ?? 0);
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setCredits(null);
   };
 
   useEffect(() => {
@@ -146,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, supabase, credits, refreshCredits }}
+      value={{ user, isLoading, supabase, credits, refreshCredits, signOut }}
     >
       {children}
     </AuthContext.Provider>
