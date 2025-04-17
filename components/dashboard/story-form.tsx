@@ -126,8 +126,8 @@ export default function StoryForm({
               </div>
 
               {/* Input field */}
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="w-full sm:flex-1">
                   <Label htmlFor="title" className="sr-only">
                     Story Title
                   </Label>
@@ -141,7 +141,7 @@ export default function StoryForm({
                 </div>
                 <Button
                   type="submit"
-                  className="gap-2 flex-shrink-0"
+                  className="w-full sm:w-auto gap-2"
                   disabled={
                     isSubmitting ||
                     images.length === 0 ||

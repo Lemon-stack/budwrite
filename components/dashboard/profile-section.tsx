@@ -69,18 +69,31 @@ export function ProfileSection({ user }: { user: any }) {
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
-            value={email.split("@")[0]}
+            value={email}
             disabled
             placeholder="Enter your email"
           />
         </div>
-        <Button onClick={handleUpdateProfile} disabled={isUpdating}>
-          {isEditing
-            ? isUpdating
-              ? "Updating..."
-              : "Update Profile"
-            : "Edit Profile"}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleUpdateProfile} disabled={isUpdating}>
+            {isEditing
+              ? isUpdating
+                ? "Updating..."
+                : "Update Profile"
+              : "Edit Profile"}
+          </Button>
+          {isEditing && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditing(false);
+                setName(user.name || user.email?.split("@")[0] || "");
+              }}
+            >
+              Cancel
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

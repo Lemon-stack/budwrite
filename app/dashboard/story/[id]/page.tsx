@@ -294,17 +294,17 @@ export default function StoryPage({ params }: Props) {
         </DialogContent>
       </Dialog>
 
-      <div className="bg-muted/30 rounded-lg p-6 mb-10">
+      <div className="bg-muted/30 rounded-lg mt-20 p-6 mb-10">
         <h2 className="text-xl font-semibold mb-4">Source Image</h2>
-        <div className="flex flex-col md:flex-row items-start gap-6">
-          <div className="w-full md:w-1/5 rounded-md overflow-hidden mb-4 md:mb-0">
+        <div className="flex flex-row items-start gap-6">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-md overflow-hidden">
             <img
               src={story.image || "/placeholder.svg"}
               alt="Source image for the story"
-              className="w-full h-auto object-cover"
+              className="w-full h-full object-cover"
             />
           </div>
-          <div>
+          <div className="flex-1">
             <p className="text-sm text-muted-foreground mb-4">
               This story was generated based on the image you uploaded. Our AI
               analyzed the visual elements and created a unique narrative

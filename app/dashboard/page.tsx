@@ -64,19 +64,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="mx-auto py-10">
-      <div className="flex items-center justify-end gap-4 mb-20 ml-auto">
-        <div className="bg-muted px-4 py-2 rounded-lg">
-          <span className="text-sm text-muted-foreground">Credits: </span>
-          <span className="font-semibold">{credits}</span>
-        </div>
-        <Link
-          href="/buy-credits"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-purple-600 text-white hover:bg-purple-700 h-10 px-4 py-2"
-        >
-          Buy Credits
-        </Link>
-      </div>
+    <div className="mx-auto h-dvh flex flex-col pt-16">
       <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-200 mb-6">
         What story do you want to create today?
       </h2>
