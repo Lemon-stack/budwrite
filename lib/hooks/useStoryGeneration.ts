@@ -158,38 +158,35 @@ export function useStoryGeneration() {
     setError(null);
 
     try {
-      if (imageFiles.length > MAX_IMAGES) {
-        throw new Error(`Maximum ${MAX_IMAGES} images allowed`);
+      if (imageFiles.length === 0) {
+        throw new Error("Please select an image");
       }
+
+      // Only use the first image
+      const imageFile = imageFiles[0];
 
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        console.error("No authenticated user found");
         throw new Error("User must be authenticated");
       }
 
-      // Calculate required credits: 1 per image + 1 for story generation
-      const requiredCredits = imageFiles.length + 1;
+      // Calculate required credits: 1 for image + 1 for story generation
+      const requiredCredits = 2;
       const credits = await checkCredits(user.id, requiredCredits);
 
-      // Upload all images
-      const imageUrls = await Promise.all(
-        imageFiles.map((file) => uploadImage(file))
-      );
+      // Upload the image
+      const imageUrl = await uploadImage(imageFile);
 
-      // Verify all uploaded images
-      await Promise.all(
-        imageUrls.map((url) =>
-          fetch(url).then((res) => {
-            if (!res.ok) throw new Error("Failed to verify uploaded image");
-          })
-        )
-      );
+      // Verify the uploaded image
+      const verifyResponse = await fetch(imageUrl);
+      if (!verifyResponse.ok) {
+        throw new Error("Failed to verify uploaded image");
+      }
 
       // Generate story
-      const story = await generateStoryWithAI(imageUrls, title);
+      const story = await generateStoryWithAI([imageUrl], title);
 
       // Save story to database
       const { data: createdStory, error: storyError } = await supabase
@@ -199,8 +196,7 @@ export function useStoryGeneration() {
             user_id: user.id,
             title,
             content: story,
-            image: imageUrls[0], // Store first image as main image
-            additional_images: imageUrls.slice(1), // Store additional images
+            image: imageUrl,
             status: "completed",
             created_at: new Date().toISOString(),
           },
@@ -209,13 +205,31 @@ export function useStoryGeneration() {
         .single();
 
       if (storyError) {
-        toast.error("Failed to save story");
-        throw new Error("Failed to save story");
+        console.error("Story save error details:", {
+          error: storyError,
+          storyData: {
+            user_id: user.id,
+            title,
+            content: story,
+            image: imageUrl,
+          },
+        });
+        toast.error(`Failed to save story: ${storyError.message}`);
+        throw new Error(`Failed to save story: ${storyError.message}`);
       }
 
       if (!createdStory?.id) {
-        toast.error("Failed to save story");
-        throw new Error("Failed to save story");
+        console.error("Story creation failed - no ID returned:", {
+          createdStory,
+          storyData: {
+            user_id: user.id,
+            title,
+            content: story,
+            image: imageUrl,
+          },
+        });
+        toast.error("Failed to save story: No story ID returned");
+        throw new Error("Failed to save story: No story ID returned");
       }
 
       // Deduct credits
@@ -225,9 +239,29 @@ export function useStoryGeneration() {
         .eq("id", user.id);
 
       if (creditError) {
-        await supabase.from("stories").delete().eq("id", createdStory.id);
-        toast.error("Failed to update credits");
-        throw new Error("Failed to update credits");
+        console.error("Credit update error:", {
+          error: creditError,
+          userId: user.id,
+          currentCredits: credits,
+          requiredCredits,
+          newCredits: credits - requiredCredits,
+        });
+
+        // Attempt to delete the story
+        const { error: deleteError } = await supabase
+          .from("stories")
+          .delete()
+          .eq("id", createdStory.id);
+
+        if (deleteError) {
+          console.error(
+            "Failed to delete story after credit update failure:",
+            deleteError
+          );
+        }
+
+        toast.error(`Failed to update credits: ${creditError.message}`);
+        throw new Error(`Failed to update credits: ${creditError.message}`);
       }
 
       // Refresh credits in the auth context
