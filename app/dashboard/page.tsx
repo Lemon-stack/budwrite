@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto h-dvh flex flex-col pt-16">
-      <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-200 mb-6">
+      <h2 className="text-4xl md:text-5xl font-bold text-center dark:text-slate-200 text-slate-700 mb-6">
         What story do you want to create today?
       </h2>
 

@@ -9,6 +9,7 @@ import {
   Wand2,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
@@ -50,6 +51,8 @@ const navItems = [
 ];
 
 export default function DasboardSidebar() {
+  const pathname = usePathname();
+
   return (
     <Sidebar>
       <SidebarHeader className="h-16 z-20 justify-center border-b border-sidebar-border flex items-start px-4">
@@ -63,7 +66,11 @@ export default function DasboardSidebar() {
               <SidebarMenu className="z-20">
                 {navItems.map((item) => (
                   <SidebarMenuItem key={item.title} className="z-20">
-                    <SidebarMenuButton asChild tooltip={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      tooltip={item.title}
+                      isActive={pathname === item.href}
+                    >
                       <Link href={item.href}>
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>

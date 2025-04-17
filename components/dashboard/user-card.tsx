@@ -33,12 +33,12 @@ export function UserCard({
   return (
     <Card className="w-full bg-transparent border-none shadow-sm hover:shadow-md transition-shadow">
       <CardContent className="p-2">
-        <div className="flex flex-col items-center justify-between">
+        <div className="flex flex-col justify-between">
           <div>
-            <span className="font-medium text-lg text-white">
+            <span className="font-medium text-lg dark:text-white text-gray-900">
               {displayName}
             </span>
-            <div className="flex items-center mt-1 text-sm text-gray-300">
+            <div className="flex items-center mt-1 text-sm dark:text-gray-300 text-gray-600">
               <Sparkles className="h-4 w-4 text-purple-500 mr-1" />
               {credits} credits
             </div>
