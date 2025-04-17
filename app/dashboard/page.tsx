@@ -4,21 +4,17 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useStory } from "@/lib/contexts/StoryContext";
 import StoryForm from "@/components/dashboard/story-form";
-import { useAuth } from "@/context/auth";
-import { Button } from "@/components/ui/button";
-import { FlipWords } from "@/components/ui/flip-words";
-import Link from "next/link";
+
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { generateNewStory, isLoading, isImageLoading, error, clearInputs } =
+  const { generateNewStory, isLoading, isImageLoading, clearInputs } =
     useStory();
   const [title, setTitle] = useState("");
   const [images, setImages] = useState<Array<{ id: string; preview: string }>>(
     []
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { credits } = useAuth();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
