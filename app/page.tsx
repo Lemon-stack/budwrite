@@ -20,6 +20,7 @@ import { StoryDemo } from "@/components/landing-page/story-demo";
 import Header from "@/components/landing-page/header";
 import MarqueeTestimonials from "@/components/landing-page/testimonials-section";
 import Logo from "@/components/logo";
+import Footer from "@/components/landing-page/footer";
 export default function LandingPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -185,124 +186,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 bg-black py-12">
-        <div className="container px-4">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <Link href="/" className="flex items-center gap-2">
-                <Logo text="text-zinc-300" />
-              </Link>
-              <p className="mt-4 text-sm text-white/70">
-                Transform your images into captivating stories with AI
-                technology.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="mb-4 text-sm font-semibold uppercase text-white/70">
-                Product
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/features"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/pricing"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/faq"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    FAQ
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="mb-4 text-sm font-semibold uppercase text-white/70">
-                Company
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/about"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/blog"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/careers"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    Careers
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="mb-4 text-sm font-semibold uppercase text-white/70">
-                Legal
-              </h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/cookies"
-                    className="text-sm text-white/70 hover:text-white"
-                  >
-                    Cookie Policy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-12 border-t border-white/10 pt-8 text-center">
-            <p className="text-sm text-white/50">
-              © {new Date().getFullYear()} StoryVision. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

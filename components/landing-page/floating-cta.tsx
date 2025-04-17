@@ -1,35 +1,36 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import Link from "next/link";
 
 export function FloatingCta() {
-  const [isVisible, setIsVisible] = useState(false)
-  const [isDismissed, setIsDismissed] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
     // Show the CTA after scrolling down a bit
     const handleScroll = () => {
-      const scrollPosition = window.scrollY
-      const windowHeight = window.innerHeight
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
 
       if (scrollPosition > windowHeight * 0.5 && !isDismissed) {
-        setIsVisible(true)
+        setIsVisible(true);
       } else {
-        setIsVisible(false)
+        setIsVisible(false);
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [isDismissed])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isDismissed]);
 
   const handleDismiss = () => {
-    setIsDismissed(true)
-    setIsVisible(false)
-  }
+    setIsDismissed(true);
+    setIsVisible(false);
+  };
 
   return (
     <AnimatePresence>
@@ -49,25 +50,25 @@ export function FloatingCta() {
               <X className="h-4 w-4" />
             </button>
 
-            <div className="mb-3 text-lg font-bold text-white">Ready to create your first Story?</div>
+            <div className="mb-3 text-lg font-bold text-white">
+              Ready to create your first Story?
+            </div>
             <p className="mb-4 text-sm text-white/70">
-              Join other of creators who are already making mind-blowing stories.
+              Join thousands of creators who are already making mind-blowing
+              stories.
             </p>
 
-            <div className="flex items-center gap-3">
+            <Link href="/dashboard">
               <Button
-                className="flex-1 bg-purple-500 hover:bg-purple-600 text-white"
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white"
                 size="sm"
               >
                 Get Started Free
               </Button>
-              <Button variant="outline" size="sm" className="border-white/20 bg-transparent text-white hover:bg-white/10">
-                Learn More
-              </Button>
-            </div>
+            </Link>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
