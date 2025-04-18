@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
+
+type GenerationStage = "uploading" | "analyzing" | "generating" | "saving";
+type SetStageFunction = (stage: GenerationStage) => void;
+
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const BUCKET_NAME = "stories";
 const MAX_IMAGES = 2;
@@ -20,8 +24,9 @@ export function useStoryGeneration() {
     }
   };
 
-  const uploadImage = async (file: File) => {
+  const uploadImage = async (file: File, setCurrentStage: SetStageFunction) => {
     setIsImageLoading(true);
+    setCurrentStage("uploading");
     try {
       if (!supabase) {
         throw new Error("Supabase client not initialized");
@@ -36,9 +41,7 @@ export function useStoryGeneration() {
 
       validateImage(file);
       const fileName = `${user.id}-${Date.now()}-${file.name}`;
-      // console.log("Uploading file:", fileName);
 
-      toast.info("Uploading image...");
       const { data, error: uploadError } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(fileName, file, {
@@ -47,7 +50,6 @@ export function useStoryGeneration() {
         });
 
       if (uploadError) {
-        // console.error("Upload error:", uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
@@ -59,7 +61,6 @@ export function useStoryGeneration() {
         throw new Error("Failed to generate public URL");
       }
 
-      // console.log("Generated public URL:", urlData.publicUrl);
       return urlData.publicUrl;
     } finally {
       setIsImageLoading(false);
@@ -74,7 +75,6 @@ export function useStoryGeneration() {
       .single();
 
     if (userError) {
-      // console.error("Error checking credits:", userError);
       throw new Error("Failed to check credits");
     }
 
@@ -92,16 +92,15 @@ export function useStoryGeneration() {
     return userData.credits;
   };
 
-  const generateStoryWithAI = async (imageUrls: string[], title: string) => {
-    // console.log("Starting story generation with AI");
-    // console.log("Image URLs:", imageUrls);
-    // console.log("Title:", title);
-
+  const generateStoryWithAI = async (
+    imageUrls: string[],
+    title: string,
+    setCurrentStage: SetStageFunction
+  ) => {
     try {
-      // Analyze all images
+      setCurrentStage("analyzing");
       const imageDescriptions = await Promise.all(
         imageUrls.map(async (imageUrl) => {
-          // console.log("Making analyze request to /api/gemini/analyze");
           const analyzeResponse = await fetch("/api/gemini/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -110,7 +109,6 @@ export function useStoryGeneration() {
 
           if (!analyzeResponse.ok) {
             const errorText = await analyzeResponse.text();
-            // console.error("Analyze response error:", errorText);
             throw new Error(
               `Failed to analyze image: ${analyzeResponse.status} ${errorText}`
             );
@@ -121,7 +119,7 @@ export function useStoryGeneration() {
         })
       );
 
-      // console.log("Making generate request to /api/generate-story");
+      setCurrentStage("generating");
       const storyResponse = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -134,26 +132,23 @@ export function useStoryGeneration() {
 
       if (!storyResponse.ok) {
         const errorText = await storyResponse.text();
-        // console.error("Generate response error:", errorText);
         throw new Error(
           `Failed to generate story: ${storyResponse.status} ${errorText}`
         );
       }
 
       const storyData = await storyResponse.json();
-      // console.log("Story generation successful");
       return storyData.content;
     } catch (error) {
-      // console.error("Error in generateStoryWithAI:", {
-      //   error,
-      //   message: error instanceof Error ? error.message : "Unknown error",
-      //   stack: error instanceof Error ? error.stack : undefined,
-      // });
       throw error;
     }
   };
 
-  const generateStory = async (imageFiles: File[], title: string) => {
+  const generateStory = async (
+    imageFiles: File[],
+    title: string,
+    setCurrentStage: SetStageFunction
+  ) => {
     setIsLoading(true);
     setError(null);
 
@@ -166,7 +161,6 @@ export function useStoryGeneration() {
         throw new Error("Please select only one image");
       }
 
-      // Only use the first image
       const imageFile = imageFiles[0];
 
       const {
@@ -176,23 +170,23 @@ export function useStoryGeneration() {
         throw new Error("User must be authenticated");
       }
 
-      // Calculate required credits: 1 for image + 1 for story generation
       const requiredCredits = 2;
       const credits = await checkCredits(user.id, requiredCredits);
 
-      // Upload the image
-      const imageUrl = await uploadImage(imageFile);
+      const imageUrl = await uploadImage(imageFile, setCurrentStage);
 
-      // Verify the uploaded image
       const verifyResponse = await fetch(imageUrl);
       if (!verifyResponse.ok) {
         throw new Error("Failed to verify uploaded image");
       }
 
-      // Generate story
-      const story = await generateStoryWithAI([imageUrl], title);
+      const story = await generateStoryWithAI(
+        [imageUrl],
+        title,
+        setCurrentStage
+      );
 
-      // Save story to database
+      setCurrentStage("saving");
       const { data: createdStory, error: storyError } = await supabase
         .from("stories")
         .insert([
@@ -220,20 +214,17 @@ export function useStoryGeneration() {
         throw new Error("Failed to save story");
       }
 
-      // Deduct credits
       const { error: creditError } = await supabase
         .from("users")
         .update({ credits: credits - requiredCredits })
         .eq("id", user.id);
 
       if (creditError) {
-        // Attempt to delete the story
         await supabase.from("stories").delete().eq("id", createdStory.id);
         toast.error("We couldn't update your credits. Please try again.");
         throw new Error("Failed to update credits");
       }
 
-      // Refresh credits in the auth context
       await refreshCredits();
 
       return createdStory.id;
@@ -241,9 +232,8 @@ export function useStoryGeneration() {
       const errorMessage =
         error instanceof Error ? error.message : "An error occurred";
       setError(errorMessage);
-      throw error;
-    } finally {
       setIsLoading(false);
+      throw error;
     }
   };
 

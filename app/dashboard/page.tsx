@@ -1,20 +1,43 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useStory } from "@/lib/contexts/StoryContext";
 import StoryForm from "@/components/dashboard/story-form";
 import { Loader2 } from "lucide-react";
 import Loading from "@/loading";
+
+type GenerationStage =
+  | "uploading"
+  | "analyzing"
+  | "generating"
+  | "saving"
+  | "created";
+
 export default function DashboardPage() {
   const router = useRouter();
-  const { generateNewStory, isLoading, isImageLoading, clearInputs } =
-    useStory();
+  const {
+    generateNewStory,
+    isLoading,
+    isImageLoading,
+    clearInputs,
+    currentStage,
+    currentStory,
+  } = useStory();
   const [title, setTitle] = useState("");
   const [images, setImages] = useState<{ id: string; preview: string } | null>(
     null
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (currentStage === "created") {
+      const timer = setTimeout(() => {
+        router.push(`/dashboard/story/${currentStory?.id}`);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStage, router, currentStory?.id]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -49,22 +72,30 @@ export default function DashboardPage() {
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
 
       const storyId = await generateNewStory([imageFile], title);
-      router.push(`/dashboard/story/${storyId}`);
     } catch (err) {
       console.error("Error creating story:", err);
     }
   };
 
-  if (isLoading) {
+  if (isLoading || currentStage === "created") {
+    const stageMessages = {
+      uploading: "Uploading your image...",
+      analyzing: "Analyzing your image...",
+      generating: "Generating your story...",
+      saving: "Saving your story...",
+      created: "Your story has been created! 🎉",
+    };
+
     return (
       <div className="mx-auto h-dvh flex flex-col pt-20 relative">
         <p className="text-center text-lg text-muted-foreground mb-6">
-          Crafting an epic story... Just a moment!
+          {stageMessages[currentStage]}
         </p>
-        <Loading />
+        {currentStage !== "created" && <Loading />}
       </div>
     );
   }
+
   return (
     <div className="mx-auto h-dvh flex flex-col pt-16 relative">
       <h2 className="text-4xl md:text-5xl font-bold text-center dark:text-slate-200 text-slate-700 mb-6">

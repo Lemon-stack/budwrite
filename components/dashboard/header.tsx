@@ -26,7 +26,7 @@ export function Header() {
 
       <div className="ml-auto flex items-center gap-2">
         <ThemeSwitcher />
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button variant="ghost" size="icon" className="rounded-full hidden">
           <Bell className="h-5 w-5" />
           <span className="sr-only">Notifications</span>
         </Button>
