@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { cleanStoryContent } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 import BookDisplayStory from "@/components/dashboard/book-display-story";
+import Loading from "@/loading";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -205,7 +206,7 @@ export default function StoryPage({ params }: Props) {
   if (loading || id === null) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+        <Loading />
       </div>
     );
   }

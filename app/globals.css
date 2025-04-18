@@ -85,3 +85,55 @@
     font-family: var(--font-geist);
   }
 }
+
+.perspective-\[1000px\] {
+  perspective: 1000px;
+}
+
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+.rotate-x-\[70deg\] {
+  transform: rotateX(70deg);
+}
+
+.rotate-y-\[70deg\] {
+  transform: rotateY(70deg);
+}
+
+@keyframes spin-slow {
+  0%,
+  100% {
+    box-shadow: 0.2em 0 0 0 currentColor;
+  }
+  12% {
+    box-shadow: 0.2em 0.2em 0 0 currentColor;
+  }
+  25% {
+    box-shadow: 0 0.2em 0 0 currentColor;
+  }
+  37% {
+    box-shadow: -0.2em 0.2em 0 0 currentColor;
+  }
+  50% {
+    box-shadow: -0.2em 0 0 0 currentColor;
+  }
+  62% {
+    box-shadow: -0.2em -0.2em 0 0 currentColor;
+  }
+  75% {
+    box-shadow: 0 -0.2em 0 0 currentColor;
+  }
+  87% {
+    box-shadow: 0.2em -0.2em 0 0 currentColor;
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 1s linear infinite;
+}
+
+.animate-spin-slow-delay {
+  animation: spin-slow 1s linear infinite;
+}

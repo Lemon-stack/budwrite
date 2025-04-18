@@ -4,7 +4,8 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useStory } from "@/lib/contexts/StoryContext";
 import StoryForm from "@/components/dashboard/story-form";
-
+import { Loader2 } from "lucide-react";
+import Loading from "@/loading";
 export default function DashboardPage() {
   const router = useRouter();
   const { generateNewStory, isLoading, isImageLoading, clearInputs } =
@@ -54,8 +55,18 @@ export default function DashboardPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="mx-auto h-dvh flex flex-col pt-20 relative">
+        <p className="text-center text-lg text-muted-foreground mb-6">
+          Crafting an epic story... Just a moment!
+        </p>
+        <Loading />
+      </div>
+    );
+  }
   return (
-    <div className="mx-auto h-dvh flex flex-col pt-16">
+    <div className="mx-auto h-dvh flex flex-col pt-16 relative">
       <h2 className="text-4xl md:text-5xl font-bold text-center dark:text-slate-200 text-slate-700 mb-6">
         What story do you want to create today?
       </h2>
