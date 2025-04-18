@@ -27,14 +27,25 @@ type Story = {
   created_at: string;
 };
 
-export default function PublicStoryPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export default function PublicStoryPage({ params }: Props) {
+  // Use state to store the resolved id
+  const [id, setId] = useState<string | null>(null);
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+
+  // Resolve the params Promise to get the id
+  useEffect(() => {
+    async function resolveParams() {
+      const resolvedParams = await params;
+      setId(resolvedParams.id);
+    }
+    resolveParams();
+  }, [params]);
 
   useEffect(() => {
     async function loadStory() {
@@ -42,7 +53,7 @@ export default function PublicStoryPage({
         const { data, error } = await supabase
           .from("stories")
           .select("*")
-          .eq("id", params.id)
+          .eq("id", id)
           .single();
 
         if (error) throw error;
@@ -55,7 +66,7 @@ export default function PublicStoryPage({
     }
 
     loadStory();
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return (
