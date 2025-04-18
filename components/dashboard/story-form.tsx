@@ -124,7 +124,7 @@ export default function StoryForm({
                   </Label>
                   <Input
                     id="title"
-                    placeholder="Enter a prompt..."
+                    placeholder="Enter your story title..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full"

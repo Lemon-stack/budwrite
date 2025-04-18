@@ -61,6 +61,11 @@ export default function BookDisplayStory({
           </div>
         </div>
 
+        {/* Blank First Page */}
+        <div className="page bg-white">
+          <div className="page-content h-full" />
+        </div>
+
         {/* Content Pages */}
         {pages.map((page, index) => (
           <div key={index} className="page bg-white p-8 shadow-lg">

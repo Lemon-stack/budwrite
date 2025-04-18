@@ -7,6 +7,7 @@ import { useAuth } from "@/context/auth";
 import { Button } from "../ui/button";
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
 
 interface UserCardProps {
   planType?: "Free" | "Pro" | "Enterprise";
@@ -19,6 +20,7 @@ export function UserCard({
 }: UserCardProps) {
   const { user, credits } = useAuth();
   const [displayName, setDisplayName] = useState<string>("");
+  const isLowCredits = credits !== null && credits < 2;
 
   useEffect(() => {
     if (user) {
@@ -38,14 +40,26 @@ export function UserCard({
             <span className="font-medium text-lg dark:text-white text-gray-900">
               {displayName}
             </span>
-            <div className="flex items-center mt-1 text-sm dark:text-gray-300 text-gray-600">
-              <Sparkles className="h-4 w-4 text-purple-500 mr-1" />
-              {credits} credits
+            <div className="flex items-center mt-1">
+              <Badge
+                variant={isLowCredits ? "destructive" : "default"}
+                className="text-sm flex items-center justify-between"
+              >
+                <Sparkles className="h-4 w-4 text-purple-500 mr-1" />
+                {credits} credits
+              </Badge>
+              {isLowCredits && (
+                <span className="ml-2 text-xs text-red-500">Low credits</span>
+              )}
             </div>
           </div>
           <Link href="/dashboard/settings#credits-pay" className="ml-auto">
-            <Button variant="outline" size="sm" className="text-xs px-3 py-1">
-              Buy More
+            <Button
+              variant={isLowCredits ? "destructive" : "outline"}
+              size="sm"
+              className="text-xs px-3 py-1"
+            >
+              Get More Credits
             </Button>
           </Link>
         </div>
