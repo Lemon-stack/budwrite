@@ -91,41 +91,44 @@ export default function PublicStoryPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
-      <div className="flex justify-center mb-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+      <div className="flex justify-center mb-4 sm:mb-8">
         <Logo />
       </div>
 
-      <div className="rounded-lg p-6">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">
+      <div className="rounded-lg p-4 sm:p-6">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
           {story.title}
         </h1>
-        <div className="text-sm text-muted-foreground mb-6">
+        <div className="text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
           Created on {new Date(story.created_at).toLocaleString()}
         </div>
 
-        <Separator className="mb-6" />
+        <Separator className="mb-4 sm:mb-6" />
+        <div className="flex flex-col items-center justify-center w-full overflow-scroll">
+          {story.status === "generating" ? (
+            <div className="flex flex-col items-center justify-center py-6 sm:py-10">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-purple-500 mb-4"></div>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Generating story...
+              </p>
+            </div>
+          ) : (
+            <BookDisplayStory
+              content={story.content}
+              title={story.title.replace(/\*/g, "")}
+              image={story.image}
+            />
+          )}
+        </div>
 
-        {story.status === "generating" ? (
-          <div className="flex flex-col items-center justify-center py-10">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
-            <p className="text-muted-foreground">Generating story...</p>
-          </div>
-        ) : (
-          <BookDisplayStory
-            content={story.content}
-            title={story.title.replace(/\*/g, "")}
-            image={story.image}
-          />
-        )}
-
-        <div className="mt-8 text-center">
-          <p className="text-muted-foreground mb-4">
+        <div className="mt-6 sm:mt-8 text-center">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">
             Want to create your own stories? Sign up now!
           </p>
           <Button
             asChild
-            className="bg-purple-500 text-slate-100 hover:bg-purple-600"
+            className="bg-purple-500 text-slate-100 hover:bg-purple-600 w-full sm:w-auto"
           >
             <Link href="/sign-up">Create Your Own Story</Link>
           </Button>
