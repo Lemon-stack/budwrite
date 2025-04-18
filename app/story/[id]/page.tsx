@@ -28,7 +28,7 @@ type Story = {
 };
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default function PublicStoryPage({ params }: Props) {
