@@ -104,12 +104,14 @@ export default function StoryPage({ params }: Props) {
 
   const handleShare = async () => {
     try {
+      const publicUrl = `${window.location.origin}/story/${id}`;
       await navigator.share({
         title: "Check out this story",
-        url: window.location.href,
+        url: publicUrl,
       });
     } catch (error) {
-      await navigator.clipboard.writeText(window.location.href);
+      const publicUrl = `${window.location.origin}/story/${id}`;
+      await navigator.clipboard.writeText(publicUrl);
       toast.success("Link copied to clipboard!");
     }
   };
