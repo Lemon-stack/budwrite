@@ -12,24 +12,50 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    const { descriptions, title, imageUrls } = await request.json();
-    console.log("Received request with:", { descriptions, title, imageUrls });
+    const { imageUrls, title } = await request.json();
+    console.log("Received request with:", { imageUrls, title });
 
-    if (!descriptions || !title || !imageUrls || descriptions.length === 0) {
-      console.error("Missing required fields:", {
-        descriptions,
-        title,
-        imageUrls,
-      });
+    if (!imageUrls || imageUrls.length === 0) {
+      console.error("Missing required fields:", { imageUrls });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    console.log("Generating story with GPT-4.1-mini");
-    const completion = await openai.chat.completions.create({
-      model: "openai/gpt-4.1-mini",
+    // First, analyze images using Qwen
+    console.log("Analyzing images with Qwen");
+    const imageAnalysisPromises = imageUrls.map(async (imageUrl: string) => {
+      const completion = await openai.chat.completions.create({
+        model: "qwen/qwen2.5-vl-3b-instruct:free",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Describe this image in detail, focusing on the key elements, atmosphere, and any potential story elements. Be creative and imaginative.",
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: imageUrl,
+                },
+              },
+            ],
+          },
+        ],
+      });
+      return completion.choices[0].message?.content;
+    });
+
+    const imageDescriptions = await Promise.all(imageAnalysisPromises);
+    console.log("Image descriptions:", imageDescriptions);
+
+    // Then generate story using Llama
+    console.log("Generating story with Llama");
+    const storyCompletion = await openai.chat.completions.create({
+      model: "meta-llama/llama-2-70b-chat",
       messages: [
         {
           role: "system",
@@ -47,28 +73,35 @@ Format the story with proper paragraph breaks and dialogue formatting.`,
         },
         {
           role: "user",
-          content: `Create a story based on these image descriptions:\n\n${descriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nTitle: ${title}\n\nPlease write a creative and engaging story that incorporates elements from all the images.`,
+          content: `Create a story based on these image descriptions:\n\n${imageDescriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nTitle: ${title}\n\nPlease write a creative and engaging story that incorporates elements from all the images.`,
         },
       ],
       max_tokens: 1000,
       temperature: 0.7,
     });
 
-    console.log("Story generation response:", completion);
+    console.log("Story generation response:", storyCompletion);
 
-    if (!completion || !completion.choices || completion.choices.length === 0) {
-      console.error("Invalid response format from GPT-4.1-mini:", completion);
-      throw new Error("Invalid response format from GPT-4.1-mini");
+    if (
+      !storyCompletion ||
+      !storyCompletion.choices ||
+      storyCompletion.choices.length === 0
+    ) {
+      console.error("Invalid response format from Llama:", storyCompletion);
+      throw new Error("Invalid response format from Llama");
     }
 
-    const story = completion.choices[0].message?.content;
+    const story = storyCompletion.choices[0].message?.content;
 
     if (!story) {
-      console.error("No story content received from GPT-4.1-mini");
-      throw new Error("No story content received from GPT-4.1-mini");
+      console.error("No story content received from Llama");
+      throw new Error("No story content received from Llama");
     }
 
-    return NextResponse.json({ content: story });
+    return NextResponse.json({
+      content: story,
+      imageDescriptions,
+    });
   } catch (error) {
     console.error("Error generating story:", {
       error,
