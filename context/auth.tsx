@@ -80,16 +80,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               const randomName = `user${Math.floor(Math.random() * 10000)}`;
               const { data: newUser, error: createError } = await supabase
                 .from("users")
-                .insert([
+                .upsert(
+                  [
+                    {
+                      id: session.user.id,
+                      email: session.user.email,
+                      userName: randomName,
+                      userType: "free",
+                      createdAt: new Date().toISOString(),
+                      credits: 2,
+                    },
+                  ],
                   {
-                    id: session.user.id,
-                    email: session.user.email,
-                    userName: randomName,
-                    userType: "free",
-                    createdAt: new Date().toISOString(),
-                    credits: 2,
-                  },
-                ])
+                    onConflict: "id",
+                    ignoreDuplicates: true,
+                  }
+                )
                 .select()
                 .single();
 
