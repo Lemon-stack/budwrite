@@ -23,57 +23,100 @@ export async function POST(request: Request) {
       );
     }
 
-    // First, analyze images using Qwen
-    console.log("Analyzing images with Qwen");
+    // First, analyze images using Llama 4 Maverick
+    console.log("Analyzing images with Llama 4 Maverick");
     const imageAnalysisPromises = imageUrls.map(async (imageUrl: string) => {
-      const completion = await openai.chat.completions.create({
-        model: "qwen/qwen2.5-vl-3b-instruct:free",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "Describe this image in detail, focusing on the key elements, atmosphere, and any potential story elements. Be creative and imaginative.",
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: imageUrl,
+      try {
+        const completion = await openai.chat.completions.create({
+          model: "meta-llama/llama-4-scout:free",
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Describe this image in detail, focusing on the key elements, atmosphere, and any potential story elements. Be creative and imaginative.",
                 },
-              },
-            ],
-          },
-        ],
-      });
-      return completion.choices[0].message?.content;
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: imageUrl,
+                  },
+                },
+              ],
+            },
+          ],
+        });
+
+        if (
+          !completion ||
+          !completion.choices ||
+          completion.choices.length === 0
+        ) {
+          console.error("Invalid response from Llama for image:", imageUrl);
+          return `Unable to analyze image ${imageUrl}. Please try again.`;
+        }
+
+        const description = completion.choices[0].message?.content;
+        if (!description) {
+          console.error(
+            "No description received from Llama for image:",
+            imageUrl
+          );
+          return `Unable to analyze image ${imageUrl}. Please try again.`;
+        }
+
+        return description;
+      } catch (error) {
+        console.error("Error analyzing image with Llama:", {
+          imageUrl,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+        return `Error analyzing image ${imageUrl}. Please try again.`;
+      }
     });
 
     const imageDescriptions = await Promise.all(imageAnalysisPromises);
     console.log("Image descriptions:", imageDescriptions);
 
-    // Then generate story using Llama
-    console.log("Generating story with Llama");
+    // Check if we have any valid descriptions
+    const validDescriptions = imageDescriptions.filter(
+      (desc) =>
+        !desc.includes("Unable to analyze") && !desc.includes("Error analyzing")
+    );
+
+    if (validDescriptions.length === 0) {
+      console.error("No valid image descriptions were generated");
+      return NextResponse.json(
+        {
+          error: "Failed to analyze any images. Please try again.",
+          toast:
+            "Failed to analyze the image. Please try again with a different image.",
+        },
+        { status: 500 }
+      );
+    }
+
+    // Then generate story using Llama 4 Maverick
+    console.log("Generating story with Llama 4 Maverick");
     const storyCompletion = await openai.chat.completions.create({
-      model: "meta-llama/llama-2-70b-chat",
+      model: "meta-llama/llama-4-maverick:free",
       messages: [
         {
           role: "system",
-          content: `You are a creative storyteller who crafts engaging, unique narratives. Create a story based on the image descriptions that:
-1. Has a clear narrative arc with emotional depth
-2. Uses vivid sensory details and natural dialogue
-3. Develops interesting characters and relationships
-4. Includes unexpected twists or insights
-5. Maintains consistent tone and perspective
-6. Is suitable for all ages but not overly simplistic
+          content: `You are a creative storyteller who crafts engaging, unique narratives. Your task is to create a story based on the provided image descriptions and title. The story should:
+1. Have a clear narrative arc with emotional depth
+2. Use vivid sensory details and natural dialogue
+3. Develop interesting characters and relationships
+4. Include unexpected twists or insights
+5. Maintain consistent tone and perspective
+6. Be suitable for all ages but not overly simplistic
 
-If the provided title is generic or seems like a prompt (e.g., "Generate a story based on this image"), create your own creative title that captures the essence of the story.
-
-Format the story with proper paragraph breaks and dialogue formatting.`,
+Format the story with proper paragraph breaks and dialogue formatting. Do not include any meta-commentary or instructions in your response - just the story itself.`,
         },
         {
           role: "user",
-          content: `Create a story based on these image descriptions:\n\n${imageDescriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nTitle: ${title}\n\nPlease write a creative and engaging story that incorporates elements from all the images.`,
+          content: `Title: ${title}\n\nImage Descriptions:\n${validDescriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nPlease write a creative and engaging story that incorporates elements from all the images.`,
         },
       ],
       max_tokens: 1000,
@@ -88,19 +131,31 @@ Format the story with proper paragraph breaks and dialogue formatting.`,
       storyCompletion.choices.length === 0
     ) {
       console.error("Invalid response format from Llama:", storyCompletion);
-      throw new Error("Invalid response format from Llama");
+      return NextResponse.json(
+        {
+          error: "Failed to generate story",
+          toast: "Failed to generate the story. Please try again.",
+        },
+        { status: 500 }
+      );
     }
 
     const story = storyCompletion.choices[0].message?.content;
 
     if (!story) {
       console.error("No story content received from Llama");
-      throw new Error("No story content received from Llama");
+      return NextResponse.json(
+        {
+          error: "No story content received from Llama",
+          toast: "Failed to generate the story. Please try again.",
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       content: story,
-      imageDescriptions,
+      imageDescriptions: validDescriptions,
     });
   } catch (error) {
     console.error("Error generating story:", {
@@ -111,6 +166,7 @@ Format the story with proper paragraph breaks and dialogue formatting.`,
     return NextResponse.json(
       {
         error: "Failed to generate story",
+        toast: "An unexpected error occurred. Please try again.",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }

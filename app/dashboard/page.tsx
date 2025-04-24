@@ -6,6 +6,7 @@ import { useStory } from "@/lib/contexts/StoryContext";
 import StoryForm from "@/components/dashboard/story-form";
 import { Loader2 } from "lucide-react";
 import Loading from "@/loading";
+import { toast } from "sonner";
 
 type GenerationStage =
   | "uploading"
@@ -73,6 +74,7 @@ export default function DashboardPage() {
 
       const storyId = await generateNewStory([imageFile], title);
     } catch (err) {
+      toast.error(`Error creating story: ${err}`);
       console.error("Error creating story:", err);
     }
   };

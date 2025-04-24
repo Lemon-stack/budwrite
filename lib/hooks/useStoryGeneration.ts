@@ -98,48 +98,55 @@ export function useStoryGeneration() {
     setCurrentStage: SetStageFunction
   ) => {
     try {
+      console.log("Starting story generation with AI", { imageUrls, title });
       setCurrentStage("analyzing");
-      const imageDescriptions = await Promise.all(
-        imageUrls.map(async (imageUrl) => {
-          const analyzeResponse = await fetch("/api/gemini/analyze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ imageUrl }),
-          });
 
-          if (!analyzeResponse.ok) {
-            const errorText = await analyzeResponse.text();
-            throw new Error(
-              `Failed to analyze image: ${analyzeResponse.status} ${errorText}`
-            );
-          }
-
-          const analyzeData = await analyzeResponse.json();
-          return analyzeData.description;
-        })
-      );
-
-      setCurrentStage("generating");
+      console.log("Analyzing images and generating story");
       const storyResponse = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          descriptions: imageDescriptions,
-          title,
           imageUrls,
+          title,
         }),
       });
 
       if (!storyResponse.ok) {
         const errorText = await storyResponse.text();
+        console.error("Failed to generate story:", {
+          status: storyResponse.status,
+          statusText: storyResponse.statusText,
+          error: errorText,
+          imageUrls,
+          title,
+        });
         throw new Error(
           `Failed to generate story: ${storyResponse.status} ${errorText}`
         );
       }
 
       const storyData = await storyResponse.json();
+
+      // Validate the response structure
+      if (!storyData.content || typeof storyData.content !== "string") {
+        console.error("Invalid story response format:", storyData);
+        throw new Error("Invalid story response format");
+      }
+
+      console.log("Successfully generated story:", {
+        contentLength: storyData.content.length,
+        hasImageDescriptions: !!storyData.imageDescriptions,
+      });
+
       return storyData.content;
     } catch (error) {
+      console.error("Error in generateStoryWithAI:", {
+        error,
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        imageUrls,
+        title,
+      });
       throw error;
     }
   };
@@ -226,6 +233,10 @@ export function useStoryGeneration() {
       }
 
       await refreshCredits();
+
+      // Reset loading state before returning
+      setIsLoading(false);
+      setCurrentStage("uploading"); // Reset to initial stage
 
       return createdStory.id;
     } catch (error) {
