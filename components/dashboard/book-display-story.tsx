@@ -54,8 +54,8 @@ export default function BookDisplayStory({
 
   // Calculate dimensions based on screen size
   const dimensions = isMediumScreen
-    ? { width: 300, height: 500 } // Portrait mode for medium screens
-    : { width: 550, height: 733 }; // Landscape mode for large screens
+    ? { width: 400, height: 600 } // Portrait mode for medium screens
+    : { width: 700, height: 900 };
 
   return (
     <div className={cn("w-full max-w-4xl mx-auto", className)}>

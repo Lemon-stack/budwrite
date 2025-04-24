@@ -91,7 +91,7 @@ export default function PublicStoryPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
       <div className="flex justify-center mb-4 sm:mb-8">
         <Logo />
       </div>
@@ -105,7 +105,7 @@ export default function PublicStoryPage({ params }: Props) {
         </div>
 
         <Separator className="mb-4 sm:mb-6" />
-        <div className="flex flex-col items-center justify-center w-full overflow-scroll">
+        <div className="w-full">
           {story.status === "generating" ? (
             <div className="flex flex-col items-center justify-center py-6 sm:py-10">
               <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-purple-500 mb-4"></div>
@@ -114,11 +114,13 @@ export default function PublicStoryPage({ params }: Props) {
               </p>
             </div>
           ) : (
-            <BookDisplayStory
-              content={story.content}
-              title={story.title.replace(/\*/g, "")}
-              image={story.image}
-            />
+            <div className="flex flex-col items-center justify-center w-full">
+              <BookDisplayStory
+                content={story.content}
+                title={story.title.replace(/\*/g, "")}
+                image={story.image}
+              />
+            </div>
           )}
         </div>
 

@@ -41,9 +41,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <StoryProvider>
-              <main className="min-h-screen w-full flex flex-col items-center">
-                {children}
-              </main>
+              <main className="min-h-screen w-full h-full">{children}</main>
             </StoryProvider>
           </AuthProvider>
         </ThemeProvider>

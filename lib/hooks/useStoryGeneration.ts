@@ -98,10 +98,10 @@ export function useStoryGeneration() {
     setCurrentStage: SetStageFunction
   ) => {
     try {
-      console.log("Starting story generation with AI", { imageUrls, title });
+      // console.log("Starting story generation with AI", { imageUrls, title });
       setCurrentStage("analyzing");
 
-      console.log("Analyzing images and generating story");
+      // console.log("Analyzing images and generating story");
       const storyResponse = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -133,10 +133,10 @@ export function useStoryGeneration() {
         throw new Error("Invalid story response format");
       }
 
-      console.log("Successfully generated story:", {
-        contentLength: storyData.content.length,
-        hasImageDescriptions: !!storyData.imageDescriptions,
-      });
+      // console.log("Successfully generated story:", {
+      //   contentLength: storyData.content.length,
+      //   hasImageDescriptions: !!storyData.imageDescriptions,
+      // });
 
       return storyData.content;
     } catch (error) {

@@ -34,11 +34,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (currentStage === "created") {
       const timer = setTimeout(() => {
+        clearInputs();
         router.push(`/dashboard/story/${currentStory?.id}`);
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [currentStage, router, currentStory?.id]);
+  }, [currentStage, router, currentStory?.id, clearInputs]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

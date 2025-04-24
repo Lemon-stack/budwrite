@@ -13,7 +13,7 @@ const openai = new OpenAI({
 export async function POST(request: Request) {
   try {
     const { imageUrls, title } = await request.json();
-    console.log("Received request with:", { imageUrls, title });
+    // console.log("Received request with:", { imageUrls, title });
 
     if (!imageUrls || imageUrls.length === 0) {
       console.error("Missing required fields:", { imageUrls });
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // First, analyze images using Llama 4 Maverick
-    console.log("Analyzing images with Llama 4 Maverick");
+    // console.log("Analyzing images with Llama 4 Maverick");
     const imageAnalysisPromises = imageUrls.map(async (imageUrl: string) => {
       try {
         const completion = await openai.chat.completions.create({
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     });
 
     const imageDescriptions = await Promise.all(imageAnalysisPromises);
-    console.log("Image descriptions:", imageDescriptions);
+    // console.log("Image descriptions:", imageDescriptions);
 
     // Check if we have any valid descriptions
     const validDescriptions = imageDescriptions.filter(
@@ -98,32 +98,32 @@ export async function POST(request: Request) {
     }
 
     // Then generate story using Llama 4 Maverick
-    console.log("Generating story with Llama 4 Maverick");
+    // console.log("Generating story with Llama 4 Maverick");
     const storyCompletion = await openai.chat.completions.create({
       model: "meta-llama/llama-4-maverick:free",
       messages: [
         {
           role: "system",
-          content: `You are a creative storyteller who crafts engaging, unique narratives. Your task is to create a story based on the provided image descriptions and title. The story should:
-1. Have a clear narrative arc with emotional depth
-2. Use vivid sensory details and natural dialogue
-3. Develop interesting characters and relationships
-4. Include unexpected twists or insights
-5. Maintain consistent tone and perspective
-6. Be suitable for all ages but not overly simplistic
+          content: `You are a creative storyteller who crafts compelling, original narratives that avoid generic phrases and clichéd expressions. Your task is to create a story based on the provided image descriptions and title. The story should:
+1. Follow a clear narrative arc with emotional depth and resonance
+2. Incorporate vivid sensory details and authentic, natural dialogue
+3. Develop complex, relatable characters with meaningful relationships
+4. Include surprising twists or profound insights that feel earned
+5. Maintain a consistent tone and narrative perspective
+6. Be suitable for all ages while remaining sophisticated and nuanced
 
-Format the story with proper paragraph breaks and dialogue formatting. Do not include any meta-commentary or instructions in your response - just the story itself.`,
+Format the story with proper paragraph breaks and dialogue formatting. Do not include any meta-commentary or instructions in your response - only the story itself.`,
         },
         {
           role: "user",
           content: `Title: ${title}\n\nImage Descriptions:\n${validDescriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nPlease write a creative and engaging story that incorporates elements from all the images.`,
         },
       ],
-      max_tokens: 1000,
+      max_tokens: 2000,
       temperature: 0.7,
     });
 
-    console.log("Story generation response:", storyCompletion);
+    // console.log("Story generation response:", storyCompletion);
 
     if (
       !storyCompletion ||
