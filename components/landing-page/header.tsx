@@ -41,7 +41,7 @@ export default function Header() {
             variant="ghost"
             className="text-white/70 hover:text-white hover:bg-black/20"
           >
-            <Link href="/login">Log in</Link>
+            <Link href="/sign-in">Log in</Link>
           </Button>
           <Button className="bg-purple-500 hover:bg-purple-600 text-white">
             <Link href="/dashboard">Get Started</Link>

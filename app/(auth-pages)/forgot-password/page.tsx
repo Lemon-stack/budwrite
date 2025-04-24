@@ -59,7 +59,7 @@ export default async function ForgotPassword(props: {
           <div className="text-center pt-2">
             <Link
               className="text-purple-600 hover:text-purple-800 font-medium transition-colors inline-flex items-center gap-1.5"
-              href="/auth/sign-in"
+              href="/sign-in"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Back to Sign in
