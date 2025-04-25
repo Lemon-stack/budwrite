@@ -26,6 +26,7 @@ export default function DashboardPage() {
     currentStory,
   } = useStory();
   const [title, setTitle] = useState("");
+  const [maxTokens, setMaxTokens] = useState(2000);
   const [images, setImages] = useState<{ id: string; preview: string } | null>(
     null
   );
@@ -73,7 +74,7 @@ export default function DashboardPage() {
         .then((res) => res.blob())
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
 
-      const storyId = await generateNewStory([imageFile], title);
+      const storyId = await generateNewStory([imageFile], title, maxTokens);
     } catch (err) {
       toast.error(`Error creating story: ${err}`);
       console.error("Error creating story:", err);
@@ -115,6 +116,8 @@ export default function DashboardPage() {
         setTitle={setTitle}
         isSubmitting={isLoading}
         isImageLoading={isImageLoading}
+        maxTokens={maxTokens}
+        setMaxTokens={setMaxTokens}
       />
     </div>
   );

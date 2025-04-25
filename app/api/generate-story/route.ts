@@ -12,7 +12,7 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    const { imageUrls, title } = await request.json();
+    const { imageUrls, title, max_tokens = 2000 } = await request.json();
     // console.log("Received request with:", { imageUrls, title });
 
     if (!imageUrls || imageUrls.length === 0) {
@@ -116,10 +116,10 @@ Format the story with proper paragraph breaks and dialogue formatting. Do not in
         },
         {
           role: "user",
-          content: `Title: ${title}\n\nImage Descriptions:\n${validDescriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nPlease write a creative and engaging story that incorporates elements from all the images.`,
+          content: `Title: ${title}\n\nImage Descriptions:\n${validDescriptions.map((desc: string, i: number) => `Image ${i + 1}: "${desc}"`).join("\n\n")}\n\nPlease write a creative and engaging story that incorporates elements from all the images. Make sure to write a story that is approximately ${max_tokens} tokens long.`,
         },
       ],
-      max_tokens: 2000,
+      max_tokens: max_tokens,
       temperature: 0.7,
     });
 

@@ -43,21 +43,21 @@ export function UserCard({
             <div className="flex items-center mt-1">
               <Badge
                 variant={isLowCredits ? "destructive" : "default"}
-                className="text-sm flex items-center justify-between"
+                className="text-sm flex rounded-sm items-center justify-between"
               >
-                <Sparkles className="h-4 w-4 text-purple-500 mr-1" />
+                <Sparkles className="h-4 w-4 text-purple-500 mr-2" />
                 {credits} credits
               </Badge>
               {isLowCredits && (
-                <span className="ml-2 text-xs text-red-500">Low credits</span>
+                <span className="ml-2 text-sm text-red-500">Low credits</span>
               )}
             </div>
           </div>
-          <Link href="/dashboard/settings#credits-pay" className="ml-auto">
+          <Link href="/dashboard/settings#credits-pay" className="w-full mt-4">
             <Button
               variant={isLowCredits ? "destructive" : "outline"}
               size="sm"
-              className="text-xs px-3 py-1"
+              className="text-base w-full px-3 py-3 bg-purple-500 text-white"
             >
               Get More Credits
             </Button>

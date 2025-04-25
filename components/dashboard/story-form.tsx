@@ -7,6 +7,13 @@ import { ImagePlus, Loader2, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface StoryFormProps {
   handleSubmit: (e: React.FormEvent) => void;
@@ -18,6 +25,8 @@ interface StoryFormProps {
   setTitle: (title: string) => void;
   isSubmitting: boolean;
   isImageLoading?: boolean;
+  maxTokens: number;
+  setMaxTokens: (tokens: number) => void;
 }
 
 export default function StoryForm({
@@ -30,6 +39,8 @@ export default function StoryForm({
   setTitle,
   isSubmitting,
   isImageLoading = false,
+  maxTokens,
+  setMaxTokens,
 }: StoryFormProps) {
   const { credits } = useAuth();
 
@@ -116,7 +127,7 @@ export default function StoryForm({
                 ) : null}
               </div>
 
-              {/* Input field */}
+              {/* Input field and story length selection */}
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="w-full sm:flex-1">
                   <Label htmlFor="title" className="sr-only">
@@ -129,6 +140,27 @@ export default function StoryForm({
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full"
                   />
+                </div>
+                <div className="w-full sm:w-auto">
+                  <Select
+                    value={maxTokens.toString()}
+                    onValueChange={(value) => setMaxTokens(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Story Length" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2000">
+                        Short Story (2k tokens)
+                      </SelectItem>
+                      <SelectItem
+                        value="5000"
+                        disabled={!credits || credits < 4}
+                      >
+                        Long Story (5k tokens)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button
                   type="submit"

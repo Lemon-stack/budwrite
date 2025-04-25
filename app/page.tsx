@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import {
   BookOpen,
@@ -19,9 +20,13 @@ import { TestimonialCard } from "@/components/landing-page/testimonial-card";
 import { StoryDemo } from "@/components/landing-page/story-demo";
 import Header from "@/components/landing-page/header";
 import MarqueeTestimonials from "@/components/landing-page/testimonials-section";
-import Logo from "@/components/logo";
 import Footer from "@/components/landing-page/footer";
+import { useAuth } from "@/context/auth";
+
 export default function LandingPage() {
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
+
   return (
     <div className="relative flex min-h-screen w-full flex-col">
       {/* Particle Background */}
@@ -65,7 +70,9 @@ export default function LandingPage() {
                 asChild
               >
                 <Link href="/dashboard">
-                  Create Your First Story
+                  {isAuthenticated
+                    ? "Continue to Dashboard"
+                    : "Create Your First Story"}
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -168,18 +175,25 @@ export default function LandingPage() {
           <ScrollReveal>
             <div className="mx-auto max-w-3xl rounded-2xl border border-purple-500/20 bg-gradient-to-b from-gray-900 to-black p-8 text-center sm:p-12 hover:border-purple-500/40 transition-all duration-500 shadow-[0_0_30px_rgba(168,85,247,0.1)] hover:shadow-[0_0_50px_rgba(168,85,247,0.2)]">
               <h2 className="mb-4 text-3xl font-bold text-white sm:text-4xl">
-                Ready to Create Your First Story?
+                {isAuthenticated
+                  ? "Ready to Continue Your Story?"
+                  : "Ready to Create Your First Story?"}
               </h2>
               <p className="mb-8 text-white/70">
-                Join thousands of creators and start transforming your images
-                today. No writing experience required.
+                {isAuthenticated
+                  ? "Continue your creative journey and transform more images into captivating stories."
+                  : "Join thousands of creators and start transforming your images today. No writing experience required."}
               </p>
               <Button
                 size="lg"
                 className="bg-purple-500 hover:bg-purple-600 text-white px-8 transform transition-transform hover:scale-105"
                 asChild
               >
-                <Link href="/dashboard">Get Started For Free</Link>
+                <Link href="/dashboard">
+                  {isAuthenticated
+                    ? "Continue to Dashboard"
+                    : "Get Started For Free"}
+                </Link>
               </Button>
             </div>
           </ScrollReveal>

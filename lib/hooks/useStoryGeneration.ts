@@ -95,6 +95,7 @@ export function useStoryGeneration() {
   const generateStoryWithAI = async (
     imageUrls: string[],
     title: string,
+    maxTokens: number,
     setCurrentStage: SetStageFunction
   ) => {
     try {
@@ -108,6 +109,7 @@ export function useStoryGeneration() {
         body: JSON.stringify({
           imageUrls,
           title,
+          max_tokens: maxTokens,
         }),
       });
 
@@ -154,6 +156,7 @@ export function useStoryGeneration() {
   const generateStory = async (
     imageFiles: File[],
     title: string,
+    maxTokens: number,
     setCurrentStage: SetStageFunction
   ) => {
     setIsLoading(true);
@@ -177,7 +180,8 @@ export function useStoryGeneration() {
         throw new Error("User must be authenticated");
       }
 
-      const requiredCredits = 2;
+      // Calculate required credits based on maxTokens
+      const requiredCredits = maxTokens === 5000 ? 4 : 2;
       const credits = await checkCredits(user.id, requiredCredits);
 
       const imageUrl = await uploadImage(imageFile, setCurrentStage);
@@ -190,6 +194,7 @@ export function useStoryGeneration() {
       const story = await generateStoryWithAI(
         [imageUrl],
         title,
+        maxTokens,
         setCurrentStage
       );
 

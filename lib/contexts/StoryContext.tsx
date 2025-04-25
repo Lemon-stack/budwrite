@@ -17,7 +17,11 @@ type StoryContextType = {
   isImageLoading: boolean;
   error: string | null;
   currentStage: GenerationStage;
-  generateNewStory: (files: File[], title: string) => Promise<string>;
+  generateNewStory: (
+    files: File[],
+    title: string,
+    maxTokens: number
+  ) => Promise<string>;
   clearInputs: () => void;
 };
 
@@ -44,10 +48,19 @@ export function StoryProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const generateNewStory = async (imageFiles: File[], title: string) => {
+  const generateNewStory = async (
+    imageFiles: File[],
+    title: string,
+    maxTokens: number
+  ) => {
     try {
       setCurrentStage("uploading");
-      const storyId = await generateStory(imageFiles, title, setCurrentStage);
+      const storyId = await generateStory(
+        imageFiles,
+        title,
+        maxTokens,
+        setCurrentStage
+      );
       setCurrentStory({ id: storyId, title });
       setCurrentStage("created");
       triggerConfetti();
