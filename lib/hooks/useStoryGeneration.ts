@@ -181,7 +181,14 @@ export function useStoryGeneration() {
       }
 
       // Calculate required credits based on maxTokens
-      const requiredCredits = maxTokens === 5000 ? 4 : 2;
+      const requiredCredits =
+        maxTokens === 12000
+          ? 8
+          : maxTokens === 8000
+            ? 6
+            : maxTokens === 5000
+              ? 4
+              : 2;
       const credits = await checkCredits(user.id, requiredCredits);
 
       const imageUrl = await uploadImage(imageFile, setCurrentStage);

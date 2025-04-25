@@ -151,13 +151,25 @@ export default function StoryForm({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="2000">
-                        Short Story (2k tokens)
+                        Short Story (2 Credits)
                       </SelectItem>
                       <SelectItem
                         value="5000"
                         disabled={!credits || credits < 4}
                       >
-                        Long Story (5k tokens)
+                        Medium Story (4 Credits)
+                      </SelectItem>
+                      <SelectItem
+                        value="8000"
+                        disabled={!credits || credits < 6}
+                      >
+                        Long Story (6 Credits)
+                      </SelectItem>
+                      <SelectItem
+                        value="12000"
+                        disabled={!credits || credits < 8}
+                      >
+                        Epic Story (8 Credits)
                       </SelectItem>
                     </SelectContent>
                   </Select>
