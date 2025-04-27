@@ -1,5 +1,6 @@
-import { signInAction } from "@/app/actions";
-import { FormMessage, type Message } from "@/components/form-message";
+"use client";
+
+import { signInAction, signInWithGoogle } from "@/app/actions/auth";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,14 +9,37 @@ import Link from "next/link";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { AtSign } from "lucide-react";
+import { AuthError } from "@/components/auth-error";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useActionState } from "react";
 
-export default async function Login(props: { searchParams: Promise<Message> }) {
-  const searchParams = await props.searchParams;
+const initialState: { error?: string; redirect?: string } = {
+  error: undefined,
+  redirect: undefined,
+};
+
+export default function Login() {
+  const [state, formAction] = useActionState(signInAction, initialState);
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state?.error, toast]);
+
+  if (state?.redirect) {
+    router.push(state.redirect);
+  }
 
   return (
     <div className="w-full max-w-md">
+      <AuthError error={state?.error} />
       <div className="w-full p-8 space-y-6 transition-all duration-300 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
         <div className="flex flex-col items-center text-center space-y-2 mb-4 animate-fadeIn">
           <div className="mb-2">
@@ -30,7 +54,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
         </div>
 
         <div className="flex-1 flex flex-col space-y-5 animate-slideUp">
-          <form className="space-y-5" action={signInAction}>
+          <form className="space-y-5" action={formAction}>
             <div className="space-y-1.5 group">
               <Label
                 htmlFor="email"
@@ -44,6 +68,8 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
                   name="email"
                   placeholder="you@example.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500 dark:bg-gray-800 dark:text-white transition-all pl-3 pr-3 py-2 rounded-md"
                 />
               </div>
@@ -68,12 +94,14 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
                 name="password"
                 placeholder="Your password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
             <SubmitButton
               pendingText="Signing In..."
-              formAction={signInAction}
+              formAction={formAction}
               className="w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white font-medium py-2.5 rounded-md transition-all duration-200 transform hover:translate-y-[-1px]"
             >
               Sign in
@@ -91,21 +119,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
             </div>
           </div>
 
-          <form
-            action={async () => {
-              "use server";
-              const supabase = await createClient();
-              const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                  redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-                },
-              });
-              if (data.url) {
-                redirect(data.url);
-              }
-            }}
-          >
+          <form action={signInWithGoogle}>
             <Button
               type="submit"
               variant="outline"
@@ -132,8 +146,6 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
               Continue with Google
             </Button>
           </form>
-
-          <FormMessage message={searchParams} />
 
           <div className="text-center pt-2">
             <p className="text-sm text-gray-600 dark:text-gray-400">

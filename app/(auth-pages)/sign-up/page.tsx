@@ -1,5 +1,5 @@
 import { signUpAction } from "@/app/actions";
-import { FormMessage, type Message } from "@/components/form-message";
+
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,18 +11,7 @@ import { redirect } from "next/navigation";
 import Logo from "@/components/logo";
 import { AtSign } from "lucide-react";
 
-export default async function Signup(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
-  if ("message" in searchParams) {
-    return (
-      <div className="w-full flex-1 flex items-center h-screen sm:max-w-md justify-center gap-2 p-4">
-        <FormMessage message={searchParams} />
-      </div>
-    );
-  }
-
+export default async function Signup() {
   return (
     <div className="w-full max-w-md">
       <div className="w-full p-8 space-y-6 transition-all duration-300 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
@@ -138,8 +127,6 @@ export default async function Signup(props: {
               Continue with Google
             </Button>
           </form>
-
-          <FormMessage message={searchParams} />
 
           <div className="text-center pt-2">
             <p className="text-sm text-gray-600 dark:text-gray-400">

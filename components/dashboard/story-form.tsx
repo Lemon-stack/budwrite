@@ -65,7 +65,7 @@ export default function StoryForm({
   return (
     <div className="w-full max-w-5xl mx-auto">
       <form onSubmit={handleSubmit} className="w-full">
-        <Card>
+        <Card className="shadow-sm bg-purple-300/5">
           <CardContent className="pt-6">
             <div className="space-y-4">
               {/* Image upload section - horizontal layout */}
@@ -176,7 +176,7 @@ export default function StoryForm({
                 </div>
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto gap-2"
+                  className="w-full sm:w-auto bg-purple-500 hover:bg-purple-600 gap-2"
                   disabled={
                     isSubmitting || !images || !title.trim() || !canUpload
                   }

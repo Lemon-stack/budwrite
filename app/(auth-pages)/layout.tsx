@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Logo from "@/components/logo";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { Toaster } from "sonner";
 
 export default async function AuthLayout({
   children,
@@ -27,11 +28,12 @@ export default async function AuthLayout({
   const isForgotPassword = pathname.includes("forgot-password");
 
   return (
-    <div className="min-h-screen w-full flex">
+    <div className="min-h-screen h-dvh bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Content columns */}
+      <Toaster />
       <div
         className={cn(
-          "flex w-full transition-all duration-700",
+          "flex w-full h-full transition-all duration-700",
           isSignUp ? "flex-row-reverse" : "flex-row"
         )}
       >

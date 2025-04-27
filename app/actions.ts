@@ -1,6 +1,5 @@
 "use server";
 
-import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -13,11 +12,11 @@ export const signUpAction = async (formData: FormData) => {
   const origin = (await headers()).get("origin");
 
   if (!email || !password || !confirmPassword) {
-    return encodedRedirect("error", "/sign-up", "All fields are required");
+    return { error: "All fields are required" };
   }
 
   if (password !== confirmPassword) {
-    return encodedRedirect("error", "/sign-up", "Passwords do not match");
+    return { error: "Passwords do not match" };
   }
 
   const { error } = await supabase.auth.signUp({
@@ -30,14 +29,14 @@ export const signUpAction = async (formData: FormData) => {
 
   if (error) {
     console.error(error.code + " " + error.message);
-    return encodedRedirect("error", "/sign-up", error.message);
-  } else {
-    return encodedRedirect(
-      "success",
-      "/sign-up",
-      "Thanks for signing up! Please check your email for a verification link."
-    );
+    return { error: error.message };
   }
+
+  return {
+    success:
+      "Thanks for signing up! Please check your email for a verification link.",
+    redirect: "/sign-in",
+  };
 };
 
 export const signInAction = async (formData: FormData) => {
@@ -51,10 +50,10 @@ export const signInAction = async (formData: FormData) => {
   });
 
   if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    return { error: error.message };
   }
 
-  return redirect("/dashboard");
+  redirect("/dashboard");
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {
@@ -64,7 +63,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   const callbackUrl = formData.get("Url")?.toString();
 
   if (!email) {
-    return encodedRedirect("error", "/forgot-password", "Email is required");
+    return { error: "Email is required" };
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -73,22 +72,17 @@ export const forgotPasswordAction = async (formData: FormData) => {
 
   if (error) {
     console.error(error.message);
-    return encodedRedirect(
-      "error",
-      "/forgot-password",
-      "Could not reset password"
-    );
+    return { error: "Could not reset password" };
   }
 
   if (callbackUrl) {
-    return redirect(callbackUrl);
+    redirect(callbackUrl);
   }
 
-  return encodedRedirect(
-    "success",
-    "/forgot-password",
-    "Check your email for a link to reset your password."
-  );
+  return {
+    success: "Check your email for a link to reset your password.",
+    redirect: "/sign-in",
+  };
 };
 
 export const resetPasswordAction = async (formData: FormData) => {
@@ -98,19 +92,11 @@ export const resetPasswordAction = async (formData: FormData) => {
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!password || !confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/dashboard/reset-password",
-      "Password and confirm password are required"
-    );
+    return { error: "Password and confirm password are required" };
   }
 
   if (password !== confirmPassword) {
-    encodedRedirect(
-      "error",
-      "/dashboard/reset-password",
-      "Passwords do not match"
-    );
+    return { error: "Passwords do not match" };
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -118,18 +104,17 @@ export const resetPasswordAction = async (formData: FormData) => {
   });
 
   if (error) {
-    encodedRedirect(
-      "error",
-      "/dashboard/reset-password",
-      "Password update failed"
-    );
+    return { error: "Password update failed" };
   }
 
-  encodedRedirect("success", "/dashboard/reset-password", "Password updated");
+  return {
+    success: "Password updated successfully",
+    redirect: "/dashboard",
+  };
 };
 
 export const signOutAction = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  return redirect("/sign-in");
+  redirect("/sign-in");
 };
