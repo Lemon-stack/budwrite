@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { debounce } from "lodash";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -65,10 +66,16 @@ export function StoryHistory() {
   };
 
   useEffect(() => {
+    const debouncedLoadMore = debounce(() => {
+      if (hasMore && !isLoading) {
+        loadMore();
+      }
+    }, 300);
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          loadMore();
+        if (entries[0].isIntersecting) {
+          debouncedLoadMore();
         }
       },
       { threshold: 1.0 }
@@ -78,7 +85,10 @@ export function StoryHistory() {
       observer.observe(observerTarget.current);
     }
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      debouncedLoadMore.cancel();
+    };
   }, [hasMore, isLoading, loadMore]);
 
   if (error) {

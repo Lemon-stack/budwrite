@@ -126,7 +126,7 @@ export default function LandingPage() {
               <FeatureCard
                 icon={<ImageIcon className="h-6 w-6" />}
                 title="AI Image Analysis"
-                description="Our advanced AI models analyze your images to identify objects, scenes, emotions, and context"
+                description="Our model analyzes your images to identify objects, scenes, emotions, and context"
               />
             </ScrollReveal>
             <ScrollReveal delay={0.2}>

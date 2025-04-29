@@ -29,7 +29,7 @@ export default function Footer() {
               <Logo text="text-zinc-300" />
             </Link>
             <p className="mt-4 text-sm text-white/70">
-              Transform your images into captivating stories with AI technology.
+              Transform Your Pictures Into Epic Stories.
             </p>
           </div>
 
