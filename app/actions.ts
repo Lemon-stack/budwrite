@@ -19,7 +19,7 @@ export const signUpAction = async (formData: FormData) => {
     redirect("/sign-up?error=Passwords do not match");
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -27,9 +27,33 @@ export const signUpAction = async (formData: FormData) => {
     },
   });
 
-  if (error) {
-    console.error(error.code + " " + error.message);
-    redirect(`/sign-up?error=${error.message}`);
+  if (signUpError) {
+    console.error(signUpError.code + " " + signUpError.message);
+    redirect(`/sign-up?error=${signUpError.message}`);
+  }
+
+  if (signUpData?.user) {
+    // Create user record in database
+    const { error: createUserError } = await supabase.from("users").upsert(
+      [
+        {
+          id: signUpData.user.id,
+          email: signUpData.user.email,
+          userName: email.split("@")[0],
+          userType: "free",
+          createdAt: new Date().toISOString(),
+          credits: 2,
+        },
+      ],
+      {
+        onConflict: "id",
+      }
+    );
+
+    if (createUserError) {
+      console.error("Error creating user record:", createUserError);
+      redirect("/sign-up?error=Failed to create user profile");
+    }
   }
 
   redirect(
