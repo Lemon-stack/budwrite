@@ -10,10 +10,24 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Logo from "@/components/logo";
 import { AtSign } from "lucide-react";
+import { toast } from "sonner";
+import { AuthToast } from "@/components/auth-toast";
 
-export default async function Signup() {
+export default async function Signup({
+  searchParams,
+}: {
+  searchParams: { error?: string; success?: string };
+}) {
+  if (searchParams.error) {
+    toast.error(searchParams.error);
+  }
+  if (searchParams.success) {
+    toast.success(searchParams.success);
+  }
+
   return (
     <div className="w-full max-w-md">
+      <AuthToast />
       <div className="w-full p-8 space-y-6 transition-all duration-300 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
         <div className="flex flex-col items-center text-center space-y-2 mb-4 animate-fadeIn">
           <div className="mb-2">

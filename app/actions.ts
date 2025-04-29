@@ -12,11 +12,11 @@ export const signUpAction = async (formData: FormData) => {
   const origin = (await headers()).get("origin");
 
   if (!email || !password || !confirmPassword) {
-    return { error: "All fields are required" };
+    redirect("/sign-up?error=All fields are required");
   }
 
   if (password !== confirmPassword) {
-    return { error: "Passwords do not match" };
+    redirect("/sign-up?error=Passwords do not match");
   }
 
   const { error } = await supabase.auth.signUp({
@@ -29,14 +29,12 @@ export const signUpAction = async (formData: FormData) => {
 
   if (error) {
     console.error(error.code + " " + error.message);
-    return { error: error.message };
+    redirect(`/sign-up?error=${error.message}`);
   }
 
-  return {
-    success:
-      "Thanks for signing up! Please check your email for a verification link.",
-    redirect: "/sign-in",
-  };
+  redirect(
+    "/sign-in?success=Thanks for signing up! Please check your email for a verification link."
+  );
 };
 
 export const signInAction = async (formData: FormData) => {
@@ -63,7 +61,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   const callbackUrl = formData.get("Url")?.toString();
 
   if (!email) {
-    return { error: "Email is required" };
+    redirect("/forgot-password?error=Email is required");
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -72,17 +70,16 @@ export const forgotPasswordAction = async (formData: FormData) => {
 
   if (error) {
     console.error(error.message);
-    return { error: "Could not reset password" };
+    redirect("/forgot-password?error=Could not reset password");
   }
 
   if (callbackUrl) {
     redirect(callbackUrl);
   }
 
-  return {
-    success: "Check your email for a link to reset your password.",
-    redirect: "/sign-in",
-  };
+  redirect(
+    "/sign-in?success=Check your email for a link to reset your password"
+  );
 };
 
 export const resetPasswordAction = async (formData: FormData) => {

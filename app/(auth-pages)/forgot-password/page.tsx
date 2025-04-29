@@ -7,6 +7,7 @@ import Link from "next/link";
 import { SmtpMessage } from "../smtp-message";
 import Logo from "@/components/logo";
 import { AtSign, ArrowLeft } from "lucide-react";
+import { AuthToast } from "@/components/auth-toast";
 
 export default async function ForgotPassword(props: {
   searchParams: Promise<Message>;
@@ -14,6 +15,8 @@ export default async function ForgotPassword(props: {
   const searchParams = await props.searchParams;
   return (
     <div className="w-full max-w-md">
+      <AuthToast />
+
       <div className="w-full p-8 space-y-6 bg-white rounded-xl border border-gray-200 transition-all duration-300">
         <div className="flex flex-col items-center text-center space-y-2 mb-4 animate-fadeIn">
           <div className="mb-2">
