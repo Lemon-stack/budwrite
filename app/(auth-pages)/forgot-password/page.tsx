@@ -57,7 +57,7 @@ export default async function ForgotPassword(props: {
           </form>
 
           <FormMessage message={searchParams} />
-          <SmtpMessage />
+          {/* <SmtpMessage /> */}
 
           <div className="text-center pt-2">
             <Link

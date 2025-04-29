@@ -27,15 +27,18 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  useEffect(() => {
-    if (state?.error) {
-      toast.error(state.error);
-    }
-  }, [state?.error, toast]);
+  // useEffect(() => {
+  //   if (state?.error && state.error !== prevError) {
+  //     toast.error(state.error);
+  //     setPrevError(state.error);
+  //   }
+  // }, [state?.error, prevError]);
 
-  if (state?.redirect) {
-    router.push(state.redirect);
-  }
+  useEffect(() => {
+    if (state?.redirect) {
+      router.push(state.redirect);
+    }
+  }, [state?.redirect, router]);
 
   return (
     <div className="w-full max-w-md">

@@ -79,6 +79,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               console.log("User not found in database, creating new user...");
               // User doesn't exist, create new user
               const randomName = `user${Math.floor(Math.random() * 10000)}`;
+              console.log("Creating user with data:", {
+                id: session.user.id,
+                email: session.user.email,
+                userName: randomName,
+                userType: "free",
+                createdAt: new Date().toISOString(),
+                credits: 2,
+              });
               const { data: newUser, error: createError } = await supabase
                 .from("users")
                 .upsert(
@@ -101,6 +109,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
               if (createError) {
                 console.error("Error creating user:", createError);
+                console.error("Error details:", {
+                  code: createError.code,
+                  message: createError.message,
+                  details: createError.details,
+                  hint: createError.hint,
+                });
                 throw createError;
               }
 
