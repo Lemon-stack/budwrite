@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { UserType } from "@/types/user";
 import { createClient } from "@/utils/supabase/client";
+import { createUserAction } from "@/app/actions/auth";
 
 interface User {
   id: string;
@@ -75,39 +76,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (fetchError) {
             if (fetchError.code === "PGRST116") {
-              // console.log("User not found in database, creating new user...");
-              // User doesn't exist, create new user
-              const randomName = `user${Math.floor(Math.random() * 10000)}`;
-              const { data: newUser, error: createError } = await supabase
-                .from("users")
-                .upsert(
-                  [
-                    {
-                      id: session.user.id,
-                      email: session.user.email,
-                      userName: randomName,
-                      userType: "free",
-                      createdAt: new Date().toISOString(),
-                      credits: 2,
-                    },
-                  ],
-                  {
-                    onConflict: "email",
-                    ignoreDuplicates: false,
-                  }
-                )
-                .select()
-                .single();
-
-              if (createError) {
-                console.error("Error creating user:", createError);
-                throw createError;
-              }
-              // console.log("New user created:", newUser);
+              // User doesn't exist, create new user using server action
+              const newUser = await createUserAction(
+                session.user.id,
+                session.user.email!
+              );
               setUser(newUser);
               setCredits(newUser.credits);
             } else {
-              console.error("Error fetching user:", fetchError);
               throw fetchError;
             }
           } else if (existingUser) {
