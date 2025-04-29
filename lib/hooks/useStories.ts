@@ -12,6 +12,14 @@ export function useStories() {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
+  const refresh = async () => {
+    setStories([]);
+    setPage(1);
+    setHasMore(true);
+    setError(null);
+    await loadMore();
+  };
+
   const loadMore = async () => {
     try {
       setIsLoading(true);
@@ -100,5 +108,5 @@ export function useStories() {
     loadMore();
   }, []);
 
-  return { stories, isLoading, error, loadMore, hasMore };
+  return { stories, isLoading, error, loadMore, hasMore, refresh };
 }

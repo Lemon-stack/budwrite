@@ -14,14 +14,16 @@ import { ParticleBackground } from "@/components/landing-page/particle-backgroun
 import { AnimatedText } from "@/components/landing-page/animated-text";
 import { ScrollReveal } from "@/components/landing-page/scroll-reveal";
 import { FeatureCard } from "@/components/landing-page/feature-card";
-import { HeroImageTransform } from "@/components/landing-page/hero-image-transform";
 import { MarqueeScroll } from "@/components/landing-page/marquee-scroll";
 import { TestimonialCard } from "@/components/landing-page/testimonial-card";
-import { StoryDemo } from "@/components/landing-page/story-demo";
 import Header from "@/components/landing-page/header";
 import MarqueeTestimonials from "@/components/landing-page/testimonials-section";
 import Footer from "@/components/landing-page/footer";
 import { useAuth } from "@/context/auth";
+import ExportAndShare from "@/components/landing-page/export-and-share";
+import HowItWorks from "@/components/landing-page/how-it-works";
+import StoryShowcase from "@/components/landing-page/showcase";
+import Image from "next/image";
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -90,8 +92,13 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-20 mx-auto max-w-5xl">
-            <HeroImageTransform />
+          <div className="mt-20 mx-auto  relative h-[500px] md:h-[500px] w-full rounded-xl overflow-hidden border border-purple-600/50 shadow-2xl bg-gradient-to-r from-gray-900 via-black to-gray-900">
+            <Image
+              src="/dashboard-prev.png"
+              alt="Dashbard preview"
+              fill
+              className="object-cover w-full"
+            />
           </div>
         </div>
       </section>
@@ -139,7 +146,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
+      <HowItWorks />
+      {/* <StoryShowcase /> */}
+      {/* <ExportAndShare /> */}
       {/* Demo Section */}
       {/* <section id="how-it-works" className="bg-gradient-to-b from-gray-900 to-black py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.15),transparent_70%)]"></div>

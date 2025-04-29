@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStories } from "@/lib/hooks/useStories";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,6 +7,14 @@ import { createClient } from "@supabase/supabase-js";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { cleanStoryContent } from "@/lib/utils";
+import { MoreVertical, Loader2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,10 +22,47 @@ const supabase = createClient(
 );
 
 export function StoryHistory() {
-  const { stories, isLoading, error, loadMore, hasMore } = useStories();
-  // console.log("stories", stories);
+  const { stories, isLoading, error, loadMore, hasMore, refresh } =
+    useStories();
+  const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const handleDelete = async (storyId: string, imageUrl: string) => {
+    try {
+      setDeletingStoryId(storyId);
+
+      // Extract the filename from the image URL
+      const fileName = imageUrl.split("/").pop();
+
+      // Delete from storage
+      if (fileName) {
+        const { error: storageError } = await supabase.storage
+          .from("stories")
+          .remove([fileName]);
+
+        if (storageError) {
+          console.error("Error deleting image:", storageError);
+        }
+      }
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("stories")
+        .delete()
+        .eq("id", storyId);
+
+      if (dbError) throw dbError;
+
+      toast.success("Story deleted successfully");
+      refresh(); // Refresh the story list
+    } catch (error) {
+      console.error("Error deleting story:", error);
+      toast.error("Failed to delete story");
+    } finally {
+      setDeletingStoryId(null);
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -75,12 +120,19 @@ export function StoryHistory() {
       {stories.map((story) => (
         <Card
           key={story.id}
-          className="p-3 hover:bg-muted/50 transition-colors cursor-pointer"
-          onClick={() => router.push(`/dashboard/story/${story.id}`)}
+          className="p-3 hover:bg-muted/50 transition-colors relative"
         >
+          {deletingStoryId === story.id && (
+            <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          )}
           <div className="flex gap-3">
             {story.image && (
-              <div className="w-16 h-16 relative rounded-md overflow-hidden flex-shrink-0">
+              <div
+                className="w-16 h-16 relative rounded-md overflow-hidden flex-shrink-0 cursor-pointer"
+                onClick={() => router.push(`/dashboard/story/${story.id}`)}
+              >
                 <img
                   src={story.image}
                   alt={story.title}
@@ -88,7 +140,10 @@ export function StoryHistory() {
                 />
               </div>
             )}
-            <div className="flex-1 min-w-0">
+            <div
+              className="flex-1 min-w-0 cursor-pointer"
+              onClick={() => router.push(`/dashboard/story/${story.id}`)}
+            >
               <h3 className="font-medium text-sm">{story.title}</h3>
               <p className="text-xs text-muted-foreground mb-1">
                 {formatDistanceToNow(new Date(story.created_at), {
@@ -99,6 +154,24 @@ export function StoryHistory() {
                 {cleanStoryContent(story.content?.replace(/<[^>]*>/g, ""))}
               </p>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="absolute top-2 right-2 p-1 hover:bg-muted rounded-full">
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  className="text-red-600"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(story.id, story.image);
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </Card>
       ))}

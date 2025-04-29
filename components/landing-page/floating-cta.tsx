@@ -54,8 +54,7 @@ export function FloatingCta() {
               Ready to create your first Story?
             </div>
             <p className="mb-4 text-sm text-white/70">
-              Join thousands of creators who are already making mind-blowing
-              stories.
+              Join other creators who are already making chill stories.
             </p>
 
             <Link href="/dashboard">

@@ -9,7 +9,7 @@ const Logo = ({ text, icon }: Props) => (
       height="29"
       width="29"
       viewBox="0 0 18 18"
-      className="fill-purple-600"
+      className={`fill-purple-600 ${icon}`}
     >
       <title>star sparkle</title>
       <g
