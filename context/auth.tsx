@@ -70,12 +70,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { data: existingUser, error: fetchError } = await supabase
             .from("users")
             .select("*")
-            .eq("email", session.user.email)
+            .eq("id", session.user.id)
             .single();
-          console.log("Existing user:", existingUser);
+          console.log("fetchError", fetchError);
 
           if (fetchError) {
-            console.log("Fetch error:", fetchError);
             if (fetchError.code === "PGRST116") {
               console.log("User not found in database, creating new user...");
               // User doesn't exist, create new user
@@ -110,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const { data: fetchedUser, error: fetchError } = await supabase
                   .from("users")
                   .select("*")
-                  .eq("email", session.user.email)
+                  .eq("id", session.user.id)
                   .single();
 
                 if (fetchError) {
