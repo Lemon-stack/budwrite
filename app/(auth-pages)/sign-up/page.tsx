@@ -16,13 +16,14 @@ import { AuthToast } from "@/components/auth-toast";
 export default async function Signup({
   searchParams,
 }: {
-  searchParams: { error?: string; success?: string };
+  searchParams: Promise<{ error?: string; success?: string }>;
 }) {
-  if (searchParams.error) {
-    toast.error(searchParams.error);
+  const { error, success } = await searchParams;
+  if (error) {
+    toast.error(error);
   }
-  if (searchParams.success) {
-    toast.success(searchParams.success);
+  if (success) {
+    toast.success(success);
   }
 
   return (
