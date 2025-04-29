@@ -92,8 +92,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     },
                   ],
                   {
-                    onConflict: "id",
-                    ignoreDuplicates: true,
+                    onConflict: "email",
+                    ignoreDuplicates: false,
                   }
                 )
                 .select()
