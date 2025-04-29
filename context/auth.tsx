@@ -72,8 +72,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .select("*")
             .eq("email", session.user.email)
             .single();
+          console.log("Existing user:", existingUser);
 
           if (fetchError) {
+            console.log("Fetch error:", fetchError);
             if (fetchError.code === "PGRST116") {
               console.log("User not found in database, creating new user...");
               // User doesn't exist, create new user
