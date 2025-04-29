@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { UserType } from "@/types/user";
 import { createClient } from "@/utils/supabase/client";
-import { createUserAction } from "@/app/actions/auth";
 
 interface User {
   id: string;
@@ -52,18 +51,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const checkAndCreateUser = async () => {
       try {
-        // console.log("Checking session...");
+        console.log("Checking session...");
         const {
           data: { session },
           error: sessionError,
         } = await supabase.auth.getSession();
 
         if (sessionError) {
-          // console.log("Session error:", sessionError);
+          console.log("Session error:", sessionError);
           throw sessionError;
         }
 
-        // console.log("Session:", session);
+        console.log("Session:", session);
 
         if (session?.user) {
           // console.log("User found in session:", session.user);
@@ -76,28 +75,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           if (fetchError) {
             if (fetchError.code === "PGRST116") {
-              // User doesn't exist, create new user using server action
-              const newUser = await createUserAction(
-                session.user.id,
-                session.user.email!
-              );
-              setUser(newUser);
-              setCredits(newUser.credits);
+              console.log("User not found in database, creating new user...");
+              // User doesn't exist, create new user
+              const randomName = `user${Math.floor(Math.random() * 10000)}`;
+              const { data: newUser, error: createError } = await supabase
+                .from("users")
+                .upsert(
+                  [
+                    {
+                      id: session.user.id,
+                      email: session.user.email,
+                      userName: randomName,
+                      userType: "free",
+                      createdAt: new Date().toISOString(),
+                      credits: 2,
+                    },
+                  ],
+                  {
+                    onConflict: "id",
+                  }
+                )
+                .select()
+                .single();
+
+              if (createError) {
+                console.error("Error creating user:", createError);
+                throw createError;
+              }
+
+              // If we don't get a user back, try to fetch it
+              if (!newUser) {
+                const { data: fetchedUser, error: fetchError } = await supabase
+                  .from("users")
+                  .select("*")
+                  .eq("id", session.user.id)
+                  .single();
+
+                if (fetchError) {
+                  console.error(
+                    "Error fetching user after creation:",
+                    fetchError
+                  );
+                  throw fetchError;
+                }
+
+                console.log("New user fetched:", fetchedUser);
+                setUser(fetchedUser);
+                setCredits(fetchedUser.credits);
+              } else {
+                console.log("New user created:", newUser);
+                setUser(newUser);
+                setCredits(newUser.credits);
+              }
             } else {
+              console.error("Error fetching user:", fetchError);
               throw fetchError;
             }
           } else if (existingUser) {
-            // console.log("Existing user found:", existingUser);
+            console.log("Existing user found:", existingUser);
             setUser(existingUser);
             setCredits(existingUser.credits);
           }
         } else {
-          // console.log("No session found");
+          console.log("No session found");
           setUser(null);
           setCredits(null);
         }
-      } catch {
-        // console.error("Error in auth context:", error);
+      } catch (error) {
+        console.error("Error in auth context:", error);
         setUser(null);
         setCredits(null);
       } finally {

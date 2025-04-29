@@ -12,13 +12,7 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (error) {
-      return NextResponse.redirect(
-        `${origin}/dashboard?error=${error.message}`
-      );
-    }
+    await supabase.auth.exchangeCodeForSession(code);
   }
 
   if (redirectTo) {
