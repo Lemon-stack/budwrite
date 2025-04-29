@@ -28,7 +28,7 @@ export const signUpAction = async (formData: FormData) => {
   });
 
   if (signUpError) {
-    console.error(signUpError.code + " " + signUpError.message);
+    // console.error(signUpError.code + " " + signUpError.message);
     redirect(`/sign-up?error=${signUpError.message}`);
   }
 
@@ -51,7 +51,7 @@ export const signUpAction = async (formData: FormData) => {
     );
 
     if (createUserError) {
-      console.error("Error creating user record:", createUserError);
+      // console.error("Error creating user record:", createUserError);
       redirect("/sign-up?error=Failed to create user profile");
     }
   }
@@ -93,7 +93,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   });
 
   if (error) {
-    console.error(error.message);
+    // console.error(error.message);
     redirect("/forgot-password?error=Could not reset password");
   }
 
