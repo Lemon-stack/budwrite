@@ -92,7 +92,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-20 mx-auto  relative h-[500px] md:h-[500px] w-full rounded-xl overflow-hidden border border-purple-600/50 shadow-2xl bg-gradient-to-r from-gray-900 via-black to-gray-900">
+          <div className="mt-20 mx-auto hidden md:block relative h-[500px] md:h-[500px] w-full rounded-xl overflow-hidden border border-purple-600/50 shadow-2xl bg-gradient-to-r from-gray-900 via-black to-gray-900">
             <Image
               src="/dashboard-prev.png"
               alt="Dashbard preview"
