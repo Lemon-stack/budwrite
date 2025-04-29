@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { data: existingUser, error: fetchError } = await supabase
             .from("users")
             .select("*")
-            .eq("id", session.user.id)
+            .eq("email", session.user.email)
             .single();
 
           if (fetchError) {
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const { data: fetchedUser, error: fetchError } = await supabase
                   .from("users")
                   .select("*")
-                  .eq("id", session.user.id)
+                  .eq("email", session.user.email)
                   .single();
 
                 if (fetchError) {
