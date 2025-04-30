@@ -89,7 +89,7 @@ export default function StoryForm({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
                     onChange={handleFileSelectWithCredits}
                     className="hidden"
                   />

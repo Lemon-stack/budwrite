@@ -21,7 +21,6 @@ export default function DashboardLayout({
           </div>
         </div>
       </SidebarProvider>
-      <Toaster />
     </AuthProvider>
   );
 }

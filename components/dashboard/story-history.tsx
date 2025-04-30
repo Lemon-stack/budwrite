@@ -93,9 +93,7 @@ export function StoryHistory() {
 
   if (error) {
     return (
-      <div className="text-center text-red-500">
-        Error loading stories: {error.message}
-      </div>
+      <div className="text-center text-red-500">Failed to Load stories</div>
     );
   }
 

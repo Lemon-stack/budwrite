@@ -22,6 +22,9 @@ export function useStoryGeneration() {
     if (!file.type.startsWith("image/")) {
       throw new Error("File must be an image");
     }
+    if (file.type === "image/svg+xml") {
+      throw new Error("SVG files are not supported for story generation");
+    }
   };
 
   const uploadImage = async (file: File, setCurrentStage: SetStageFunction) => {

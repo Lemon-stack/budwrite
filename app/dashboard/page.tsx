@@ -7,6 +7,7 @@ import StoryForm from "@/components/dashboard/story-form";
 import { Loader2 } from "lucide-react";
 import Loading from "@/loading";
 import { toast } from "sonner";
+import { useStories } from "@/lib/hooks/useStories";
 
 type GenerationStage =
   | "uploading"
@@ -26,6 +27,8 @@ export default function DashboardPage() {
     currentStory,
   } = useStory();
   const [title, setTitle] = useState("");
+  const { refresh } = useStories();
+
   const [maxTokens, setMaxTokens] = useState(2000);
   const [images, setImages] = useState<{ id: string; preview: string } | null>(
     null
@@ -74,10 +77,11 @@ export default function DashboardPage() {
         .then((res) => res.blob())
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
 
-      const storyId = await generateNewStory([imageFile], title, maxTokens);
+      await generateNewStory([imageFile], title, maxTokens);
+      refresh();
     } catch (err) {
-      toast.error(`Error creating story: ${err}`);
-      console.error("Error creating story:", err);
+      toast.error(`We had issues with that request, please try again 😥`);
+      // console.error("Error creating story:", err);
     }
   };
 
