@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 )
                 .select()
                 .single();
-              console.log("newUser", newUser, createError);
+              // console.log("newUser", newUser, createError);
               if (createError) {
                 throw createError;
               }
