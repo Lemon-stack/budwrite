@@ -66,13 +66,13 @@ export function CreditsSection({ user }: { user: any }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <PricingCard
               title="Starter"
-              credits={36}
+              credits={16}
               price={2}
               description="Quick try or casual users"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_36_CREDITS!,
-                  2
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_16_CREDITS!,
+                  16
                 )
               }
               isLoading={isLoading}
@@ -80,13 +80,13 @@ export function CreditsSection({ user }: { user: any }) {
 
             <PricingCard
               title="Creator"
-              credits={50}
+              credits={22}
               price={3}
               description="Great storytellers"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_50_CREDITS!,
-                  50
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_22_CREDITS!,
+                  22
                 )
               }
               isLoading={isLoading}
@@ -94,13 +94,13 @@ export function CreditsSection({ user }: { user: any }) {
 
             <PricingCard
               title="Pro"
-              credits={120}
+              credits={54}
               price={7}
               description="Obsessed storytellers"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_120_CREDITS!,
-                  120
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_54_CREDITS!,
+                  54
                 )
               }
               isLoading={isLoading}
@@ -109,13 +109,13 @@ export function CreditsSection({ user }: { user: any }) {
 
             <PricingCard
               title="Studio"
-              credits={260}
-              price={12}
+              credits={116}
+              price={15}
               description="Epic creators"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_260_CREDITS!,
-                  260
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_116_CREDITS!,
+                  116
                 )
               }
               isLoading={isLoading}
