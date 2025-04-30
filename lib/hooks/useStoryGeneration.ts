@@ -99,15 +99,42 @@ export function useStoryGeneration() {
     setCurrentStage: SetStageFunction
   ) => {
     try {
-      // console.log("Starting story generation with AI", { imageUrls, title });
       setCurrentStage("analyzing");
 
-      // console.log("Analyzing images and generating story");
+      // First, analyze the image
+      const analysisResponse = await fetch("/api/analyze-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageUrl: imageUrls[0],
+        }),
+      });
+
+      if (!analysisResponse.ok) {
+        const errorText = await analysisResponse.text();
+        console.error("Failed to analyze image:", {
+          status: analysisResponse.status,
+          statusText: analysisResponse.statusText,
+          error: errorText,
+        });
+        throw new Error(
+          `Failed to analyze image: ${analysisResponse.status} ${errorText}`
+        );
+      }
+
+      const analysisData = await analysisResponse.json();
+      if (!analysisData.description) {
+        throw new Error("Failed to get image description");
+      }
+
+      setCurrentStage("generating");
+
+      // Then generate the story
       const storyResponse = await fetch("/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          imageUrls,
+          imageDescriptions: [analysisData.description],
           title,
           max_tokens: maxTokens,
         }),
@@ -119,8 +146,6 @@ export function useStoryGeneration() {
           status: storyResponse.status,
           statusText: storyResponse.statusText,
           error: errorText,
-          imageUrls,
-          title,
         });
         throw new Error(
           `Failed to generate story: ${storyResponse.status} ${errorText}`
@@ -129,16 +154,10 @@ export function useStoryGeneration() {
 
       const storyData = await storyResponse.json();
 
-      // Validate the response structure
       if (!storyData.content || typeof storyData.content !== "string") {
         console.error("Invalid story response format:", storyData);
         throw new Error("Invalid story response format");
       }
-
-      // console.log("Successfully generated story:", {
-      //   contentLength: storyData.content.length,
-      //   hasImageDescriptions: !!storyData.imageDescriptions,
-      // });
 
       return storyData.content;
     } catch (error) {

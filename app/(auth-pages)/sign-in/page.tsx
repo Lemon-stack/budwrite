@@ -27,12 +27,11 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // useEffect(() => {
-  //   if (state?.error && state.error !== prevError) {
-  //     toast.error(state.error);
-  //     setPrevError(state.error);
-  //   }
-  // }, [state?.error, prevError]);
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state]);
 
   useEffect(() => {
     if (state?.redirect) {
@@ -40,9 +39,20 @@ export default function Login() {
     }
   }, [state?.redirect, router]);
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const result = await signInAction(initialState, formData);
+    if (result.error) {
+      toast.error(result.error);
+    }
+    if (result.redirect) {
+      router.push(result.redirect);
+    }
+  };
+
   return (
     <div className="w-full max-w-md">
-      <AuthError error={state?.error} />
       <div className="w-full p-8 space-y-6 transition-all duration-300 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
         <div className="flex flex-col items-center text-center space-y-2 mb-4 animate-fadeIn">
           <div className="mb-2">
@@ -57,7 +67,7 @@ export default function Login() {
         </div>
 
         <div className="flex-1 flex flex-col space-y-5 animate-slideUp">
-          <form className="space-y-5" action={formAction}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-1.5 group">
               <Label
                 htmlFor="email"
@@ -104,7 +114,6 @@ export default function Login() {
 
             <SubmitButton
               pendingText="Signing In..."
-              formAction={formAction}
               className="w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white font-medium py-2.5 rounded-md transition-all duration-200 transform hover:translate-y-[-1px]"
             >
               Sign in

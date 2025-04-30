@@ -1,5 +1,6 @@
-import { signUpAction } from "@/app/actions";
+"use client";
 
+import { signUpAction, signInWithGoogle } from "@/app/actions/auth";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,24 +12,68 @@ import { redirect } from "next/navigation";
 import Logo from "@/components/logo";
 import { AtSign } from "lucide-react";
 import { toast } from "sonner";
-import { AuthToast } from "@/components/auth-toast";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-export default async function Signup({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string; success?: string }>;
-}) {
-  const { error, success } = await searchParams;
-  if (error) {
-    toast.error(error);
-  }
-  if (success) {
-    toast.success(success);
-  }
+const signUpSchema = z
+  .object({
+    email: z.string().email("Please enter a valid email address"),
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters long")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[0-9]/, "Password must contain at least one number")
+      .regex(
+        /[!@#$%^&*]/,
+        "Password must contain at least one special character (!@#$%^&*)"
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type SignUpFormData = z.infer<typeof signUpSchema>;
+
+export default function Signup() {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    watch,
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+  });
+
+  const onSubmit = async (data: SignUpFormData) => {
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("confirmPassword", data.confirmPassword);
+
+    const result = await signUpAction({}, formData);
+
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    if (result.success) {
+      toast.success(result.success);
+    }
+
+    if (result.redirect) {
+      router.push(result.redirect);
+    }
+  };
 
   return (
     <div className="w-full max-w-md">
-      <AuthToast />
       <div className="w-full p-8 space-y-6 transition-all duration-300 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
         <div className="flex flex-col items-center text-center space-y-2 mb-4 animate-fadeIn">
           <div className="mb-2">
@@ -43,7 +88,7 @@ export default async function Signup({
         </div>
 
         <div className="flex-1 flex flex-col space-y-5 animate-slideUp">
-          <form className="space-y-5" action={signUpAction}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-1.5 group">
               <Label
                 htmlFor="email"
@@ -54,39 +99,62 @@ export default async function Signup({
               </Label>
               <div className="relative">
                 <Input
-                  name="email"
+                  {...register("email")}
                   placeholder="you@example.com"
-                  required
                   className="border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500 dark:bg-gray-800 dark:text-white transition-all pl-3 pr-3 py-2 rounded-md"
                 />
+                {errors.email && (
+                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
             </div>
 
-            <PasswordInput
-              name="password"
-              label="Password"
-              placeholder="Create a password"
-              minLength={6}
-              required
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 -mt-3">
-              Must be at least 6 characters
-            </p>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Password
+              </Label>
+              <PasswordInput
+                {...register("password")}
+                placeholder="Create a password"
+                className="border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500 dark:bg-gray-800 dark:text-white"
+              />
+              {errors.password && (
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
 
-            <PasswordInput
-              name="confirmPassword"
-              label="Confirm Password"
-              placeholder="Confirm your password"
-              minLength={6}
-              required
-            />
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Confirm Password
+              </Label>
+              <PasswordInput
+                {...register("confirmPassword")}
+                placeholder="Confirm your password"
+                className="border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500 dark:bg-gray-800 dark:text-white"
+              />
+              {errors.confirmPassword && (
+                <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
 
             <SubmitButton
-              formAction={signUpAction}
               pendingText="Signing up..."
               className="w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white font-medium py-2.5 rounded-md transition-all duration-200 transform hover:translate-y-[-1px]"
+              disabled={isSubmitting}
             >
-              Sign up
+              {isSubmitting ? "Signing up..." : "Sign up"}
             </SubmitButton>
           </form>
 
@@ -101,21 +169,7 @@ export default async function Signup({
             </div>
           </div>
 
-          <form
-            action={async () => {
-              "use server";
-              const supabase = await createClient();
-              const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                  redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-                },
-              });
-              if (data.url) {
-                redirect(data.url);
-              }
-            }}
-          >
+          <form action={signInWithGoogle}>
             <Button
               type="submit"
               variant="outline"

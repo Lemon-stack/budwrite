@@ -12,11 +12,11 @@ export const signUpAction = async (formData: FormData) => {
   const origin = (await headers()).get("origin");
 
   if (!email || !password || !confirmPassword) {
-    redirect("/sign-up?error=All fields are required");
+    return { error: "All fields are required" };
   }
 
   if (password !== confirmPassword) {
-    redirect("/sign-up?error=Passwords do not match");
+    return { error: "Passwords do not match" };
   }
 
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -28,8 +28,7 @@ export const signUpAction = async (formData: FormData) => {
   });
 
   if (signUpError) {
-    // console.error(signUpError.code + " " + signUpError.message);
-    redirect(`/sign-up?error=${signUpError.message}`);
+    return { error: signUpError.message };
   }
 
   if (signUpData?.user) {
@@ -51,14 +50,15 @@ export const signUpAction = async (formData: FormData) => {
     );
 
     if (createUserError) {
-      // console.error("Error creating user record:", createUserError);
-      redirect("/sign-up?error=Failed to create user profile");
+      return { error: "Failed to create user profile" };
     }
   }
 
-  redirect(
-    "/sign-in?success=Thanks for signing up! Please check your email for a verification link."
-  );
+  return {
+    success:
+      "Thanks for signing up! Please check your email for a verification link.",
+    redirect: "/sign-in",
+  };
 };
 
 export const signInAction = async (formData: FormData) => {
