@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       email: session.user.email,
                       userName: session.user.email?.split("@")[0],
                       createdAt: new Date().toISOString(),
-                      credits: 2,
+                      credits: 8,
                       isOnboarded: false,
                     },
                   ],

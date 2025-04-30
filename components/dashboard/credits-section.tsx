@@ -66,13 +66,13 @@ export function CreditsSection({ user }: { user: any }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <PricingCard
               title="Starter"
-              credits={3}
-              price={1.0}
+              credits={36}
+              price={2}
               description="Quick try or casual users"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_3_CREDITS!,
-                  3
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_36_CREDITS!,
+                  2
                 )
               }
               isLoading={isLoading}
@@ -80,13 +80,13 @@ export function CreditsSection({ user }: { user: any }) {
 
             <PricingCard
               title="Creator"
-              credits={9}
-              price={0.78}
-              description="Light storytellers"
+              credits={50}
+              price={3}
+              description="Great storytellers"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_9_CREDITS!,
-                  9
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_50_CREDITS!,
+                  50
                 )
               }
               isLoading={isLoading}
@@ -94,13 +94,13 @@ export function CreditsSection({ user }: { user: any }) {
 
             <PricingCard
               title="Pro"
-              credits={22}
-              price={0.68}
-              description="Frequent users"
+              credits={120}
+              price={7}
+              description="Obsessed storytellers"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_22_CREDITS!,
-                  22
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_120_CREDITS!,
+                  120
                 )
               }
               isLoading={isLoading}
@@ -109,13 +109,13 @@ export function CreditsSection({ user }: { user: any }) {
 
             <PricingCard
               title="Studio"
-              credits={50}
-              price={0.6}
-              description="Power creators & teams"
+              credits={260}
+              price={12}
+              description="Epic creators"
               onClick={() =>
                 handleBuyCredits(
-                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_50_CREDITS!,
-                  50
+                  process.env.NEXT_PUBLIC_POLAR_PRODUCT_260_CREDITS!,
+                  260
                 )
               }
               isLoading={isLoading}
@@ -149,8 +149,6 @@ function PricingCard({
   popular,
   bestValue,
 }: PricingCardProps) {
-  const totalAmount = Math.round(credits * price);
-
   return (
     <div
       className={`relative border rounded-xl p-5 transition-all hover:border-primary/50 hover:shadow-md ${popular ? "border-primary/70 bg-primary/5" : ""} ${bestValue ? "border-primary/70 bg-primary/5" : ""}`}
@@ -170,15 +168,8 @@ function PricingCard({
             <span className="text-muted-foreground">credits</span>
           </div>
           <div className="flex flex-col gap-1">
-            <div className="hidden items-center gap-1">
-              <span className="text-lg font-semibold">${price.toFixed(2)}</span>
-              <span className="text-muted-foreground text-sm">per credit</span>
-            </div>
             <div className="flex items-center gap-1">
-              <span className="text-lg font-semibold">${totalAmount}</span>
-              <span className="hidden text-muted-foreground text-sm">
-                total
-              </span>
+              <span className="text-lg font-semibold">${price}</span>
             </div>
           </div>
         </div>
