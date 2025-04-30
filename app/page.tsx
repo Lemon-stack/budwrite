@@ -78,17 +78,6 @@ export default function LandingPage() {
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/20 text-white hover:bg-white/10 bg-transparent min-w-[180px] group transition-all duration-300"
-                asChild
-              >
-                <Link href="/demo">
-                  <Play className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                  Watch Demo
-                </Link>
-              </Button>
             </div>
           </div>
 
