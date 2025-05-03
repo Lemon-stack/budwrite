@@ -41,21 +41,12 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {!isAuthenticated && (
-            <Button
-              variant="ghost"
-              className="text-white/70 hover:text-white hover:bg-black/20"
-            >
-              <Link href="/sign-in">Log in</Link>
-            </Button>
-          )}
-
           <Button className="bg-purple-500 hover:bg-purple-600 text-white">
             <Link
               href={isAuthenticated ? "/dashboard" : "/sign-in"}
               className="flex"
             >
-              Get Started
+              {isAuthenticated ? "Get Started" : "Continue with Google"}
             </Link>
           </Button>
         </div>

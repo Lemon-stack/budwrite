@@ -1,0 +1,92 @@
+[33m6a7f846[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Reduced allocated credits on first Signup from auth context
+[33ma1824ef[m Reduced allocated credits on first Signup from action.ts file
+[33mecdd8b8[m reduced pricing
+[33m9e466e1[m reduce the story type select and increase the output a bit
+[33m29d9201[m modified pricing structure and first time credit allocation
+[33m5db5fcc[m hide console log, I'm freaking moving to express for the sotory gen
+[33mc229838[m a bit of errs
+[33mba1b281[m removed demo-button from landing page
+[33m0a36251[m working fine now
+[33m66f3202[m fuck email and passworkd
+[33m58243b6[m signup with email and password working now
+[33mc4cd792[m hid dashboard prev on small screen
+[33m278faba[m google auth working, finally
+[33m0373097[m modified middleware to leave out auth-related paths
+[33me93858f[m still trying to fix err
+[33mf8e08f0[m still trying to fix err
+[33m9c476f3[m changed user fetch pattern to id
+[33m8ea8048[m another fix for it
+[33m5426c47[m selecting users from data base instead of id
+[33m5b56eb7[m fixing google auth
+[33meddcd35[m google siging err fix
+[33m031616d[m google siging err fix
+[33m0a50627[m fixed build errs
+[33m39f9ad0[m wrapped signup params in a promise
+[33m3332c45[m fixed err from form action returning object and client expecting void, used a custom component to read url and throw toasts
+[33m58aa1bc[m chnaged og and twitter image again
+[33m1159fbc[m changed og and twitter image
+[33m94be0e2[m landing page better
+[33m0170956[m modified layout and login functionalities
+[33mb70bd0d[m added more story length options
+[33mf7c338e[m added length selection to stories
+[33m0f61b76[m modified redirect after google signin
+[33mb8a9e66[m fix
+[33m5c2b66b[m google signing working and links corrected
+[33m23c3fa1[m created 404 page
+[33m53ca22d[m modified public dynamic story page
+[33m837a63a[m image generation working now
+[33m7214d8c[m switched da hell outta 4.1 mini
+[33m0a27c9c[m modified story previews on small screens
+[33m92ef415[m fixed params error
+[33m67cf49c[m moved metadata gen to server
+[33mf874495[m added metadata to public story page
+[33m06dd12e[m fixed params ts errors
+[33m4b2b7bd[m added dynamic shared page
+[33m991b04e[m modified story gen loading messages
+[33m6f9d201[m modified loading state while creating stories
+[33me73ac19[m modified book display and some other stuff
+[33m0ae88eb[m uploads restricted to one
+[33m130f400[m modified some stuff
+[33m5997bde[m removed too much console logs
+[33mfd639b1[m reverted to single image upload for now
+[33mf0c645b[m modified landing page
+[33mad6385a[m modified landing page
+[33m7f585b0[m fixed ts err
+[33m3035d0a[m added analytics and fixed ts errs
+[33mc0ff160[m more ui modifications
+[33m2dd5e5c[m modified ui
+[33m97de3ff[m book preview for stories
+[33m799ced0[m modified system prompt to be less descriptive for analysis
+[33m03c9d5c[m modified favicon
+[33m1ebc29c[m pricing working
+[33m799bdf2[m fixed ts errs
+[33mc218354[m fixed types err in testimonials part
+[33mb46ebe7[m modified restrictions based on credits
+[33m0e2c9eb[m fixed promise type err on dynamic page
+[33m8ee23bd[m generation working now
+[33mf3cd574[m modified settings page ui and dashboard too
+[33m8cc1f45[m modified credits tiers
+[33md3cd73d[m payments working now
+[33m4463618[m webhooks working
+[33m8f13277[m polar checkout working
+[33md6bf7af[m fixed polar err
+[33m0499289[m installed polar sdk
+[33m5043622[m credit 1 cred to users to use
+[33m2d01efe[m routing to dynamic route after generation working
+[33md308c58[m credit check before gen working
+[33m9894b64[m added caption on dashboard
+[33m72fb49e[m generation working and history working
+[33mdd68781[m fixed id page error this time
+[33md63799b[m fixed dynamic story viewing page again
+[33m687a2a7[m fixed dynamic story viewing page
+[33m0ccf0cf[m modified all links on landing page to route to their paths
+[33md1fb12a[m added story-history pagination
+[33meb33e04[m added more funcitonalities to the dashboard
+[33m3c0a150[m modifying dashboard layout
+[33m042cb8a[m added upload layout
+[33m8cf5fc4[m modified side-bar navigation
+[33mb07190c[m added sidebar and navigations
+[33m3e3dd2e[m removed the admin dashboard
+[33m4f080e9[m added admin dashboard
+[33m5b17f12[m landing page first version
+[33mc4d45f0[m Initial commit from Create Next App

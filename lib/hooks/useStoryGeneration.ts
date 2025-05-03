@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
+import {
+  analyzeImage,
+  generateStoryContent,
+  saveStory,
+  updateCredits,
+  checkUserCredits,
+} from "@/app/actions/story";
 
 type GenerationStage = "uploading" | "analyzing" | "generating" | "saving";
 type SetStageFunction = (stage: GenerationStage) => void;
@@ -70,31 +77,6 @@ export function useStoryGeneration() {
     }
   };
 
-  const checkCredits = async (userId: string, requiredCredits: number) => {
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("credits")
-      .eq("id", userId)
-      .single();
-
-    if (userError) {
-      throw new Error("Failed to check credits");
-    }
-
-    if (!userData) {
-      throw new Error("User not found");
-    }
-
-    if (userData.credits < requiredCredits) {
-      toast.error(
-        "Insufficient credits. Please purchase more credits to continue."
-      );
-      throw new Error("Insufficient credits");
-    }
-
-    return userData.credits;
-  };
-
   const generateStoryWithAI = async (
     imageUrls: string[],
     title: string,
@@ -105,27 +87,7 @@ export function useStoryGeneration() {
       setCurrentStage("analyzing");
 
       // First, analyze the image
-      const analysisResponse = await fetch("/api/analyze-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageUrl: imageUrls[0],
-        }),
-      });
-
-      if (!analysisResponse.ok) {
-        const errorText = await analysisResponse.text();
-        console.error("Failed to analyze image:", {
-          status: analysisResponse.status,
-          statusText: analysisResponse.statusText,
-          error: errorText,
-        });
-        throw new Error(
-          `Failed to analyze image: ${analysisResponse.status} ${errorText}`
-        );
-      }
-
-      const analysisData = await analysisResponse.json();
+      const analysisData = await analyzeImage(imageUrls[0]);
       if (!analysisData.description) {
         throw new Error("Failed to get image description");
       }
@@ -133,29 +95,11 @@ export function useStoryGeneration() {
       setCurrentStage("generating");
 
       // Then generate the story
-      const storyResponse = await fetch("/api/generate-story", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageDescriptions: [analysisData.description],
-          title,
-          max_tokens: maxTokens,
-        }),
-      });
-
-      if (!storyResponse.ok) {
-        const errorText = await storyResponse.text();
-        console.error("Failed to generate story:", {
-          status: storyResponse.status,
-          statusText: storyResponse.statusText,
-          error: errorText,
-        });
-        throw new Error(
-          `Failed to generate story: ${storyResponse.status} ${errorText}`
-        );
-      }
-
-      const storyData = await storyResponse.json();
+      const storyData = await generateStoryContent(
+        [analysisData.description],
+        title,
+        maxTokens
+      );
 
       if (!storyData.content || typeof storyData.content !== "string") {
         console.error("Invalid story response format:", storyData);
@@ -211,7 +155,8 @@ export function useStoryGeneration() {
             : maxTokens === 5000
               ? 4
               : 2;
-      const credits = await checkCredits(user.id, requiredCredits);
+
+      const credits = await checkUserCredits(user.id, requiredCredits);
 
       const imageUrl = await uploadImage(imageFile, setCurrentStage);
 
@@ -228,44 +173,9 @@ export function useStoryGeneration() {
       );
 
       setCurrentStage("saving");
-      const { data: createdStory, error: storyError } = await supabase
-        .from("stories")
-        .insert([
-          {
-            user_id: user.id,
-            title,
-            content: story,
-            image: imageUrl,
-            status: "completed",
-            created_at: new Date().toISOString(),
-          },
-        ])
-        .select()
-        .single();
+      const createdStory = await saveStory(title, story, imageUrl);
 
-      if (storyError) {
-        toast.error("We couldn't save your story. Please try again.");
-        throw new Error("Failed to save story");
-      }
-
-      if (!createdStory?.id) {
-        toast.error(
-          "Something went wrong while creating your story. Please try again."
-        );
-        throw new Error("Failed to save story");
-      }
-
-      const { error: creditError } = await supabase
-        .from("users")
-        .update({ credits: credits - requiredCredits })
-        .eq("id", user.id);
-
-      if (creditError) {
-        await supabase.from("stories").delete().eq("id", createdStory.id);
-        toast.error("We couldn't update your credits. Please try again.");
-        throw new Error("Failed to update credits");
-      }
-
+      await updateCredits(user.id, credits - requiredCredits);
       await refreshCredits();
 
       // Reset loading state before returning
