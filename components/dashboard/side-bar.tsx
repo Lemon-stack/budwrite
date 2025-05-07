@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BookOpen,
   ChevronRight,
@@ -30,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import Logo from "../logo";
 import { StoryHistory } from "./story-history";
 import { UserCard } from "./user-card";
+import { useAuth } from "@/context/auth";
 
 // Navigation items for the sidebar
 const navItems = [
@@ -52,13 +55,13 @@ const navItems = [
 
 export default function DasboardSidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  if (!user) return null;
 
   return (
-    <Sidebar>
-      <SidebarHeader className="h-16 z-20 justify-center border-b border-sidebar-border flex items-start px-4">
-        <Logo />
-      </SidebarHeader>
-      <SidebarContent className="flex flex-col">
+    <Sidebar className="mt-16">
+      <SidebarContent className={"flex flex-col"}>
         {/* Fixed Navigation Links */}
         <div className="flex-none">
           <SidebarGroup>
@@ -66,8 +69,8 @@ export default function DasboardSidebar() {
               <SidebarMenu className="z-20">
                 {navItems.map((item) => (
                   <SidebarMenuItem key={item.title} className="z-20">
-                    <SidebarMenuButton 
-                      asChild 
+                    <SidebarMenuButton
+                      asChild
                       tooltip={item.title}
                       isActive={pathname === item.href}
                     >

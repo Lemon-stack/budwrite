@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
-import { useStoryGeneration } from "@/lib/hooks/useStoryGeneration";
+import { useStoryGeneration } from "@/hooks/useStoryGeneration";
 import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
 
@@ -64,6 +64,7 @@ export function StoryProvider({ children }: { children: ReactNode }) {
       setCurrentStory({ id: storyId, title });
       setCurrentStage("created");
       triggerConfetti();
+      router.push(`/story/${storyId}`);
       return storyId;
     } catch (error) {
       console.error("Error in generateNewStory:", {

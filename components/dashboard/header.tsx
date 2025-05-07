@@ -1,3 +1,5 @@
+"use client";
+
 import { Bell, Search } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -15,14 +17,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "../theme-switcher";
 import Link from "next/link";
 import { useAuth } from "@/context/auth";
+import Logo from "../logo";
 
 export function Header() {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <SidebarTrigger className="-ml-2" />
-      <Separator orientation="vertical" className="h-6" />
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-primary-foreground px-4 md:px-6">
+      <Logo />
+      {user && (
+        <>
+          <SidebarTrigger className="-ml-2" />
+          <Separator orientation="vertical" className="h-6" />
+        </>
+      )}
 
       <div className="ml-auto flex items-center gap-2">
         <ThemeSwitcher />
