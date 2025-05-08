@@ -10,6 +10,8 @@ import DasboardSidebar from "@/components/dashboard/side-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Header } from "@/components/dashboard/header";
 import Wrapper from "@/components/wrapper";
+import Loading from "@/loading";
+import { Suspense } from "react";
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -45,21 +47,23 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <StoryProvider>
-              <SidebarProvider>
-                <Wrapper>
-                  <div className="flex flex-col flex-1 w-full">
-                    <Header />
-                    <div className="flex min-h-screen w-full">
-                      <DasboardSidebar />
-                      <main className="flex-1 p-4 md:p-6 overflow-auto">
-                        {children}
-                      </main>
+            <Suspense fallback={<Loading />}>
+              <StoryProvider>
+                <SidebarProvider>
+                  <Wrapper>
+                    <div className="flex flex-col flex-1 w-full">
+                      <Header />
+                      <div className="flex min-h-screen w-full">
+                        <DasboardSidebar />
+                        <main className="flex-1 p-4 md:p-6 overflow-auto">
+                          {children}
+                        </main>
+                      </div>
                     </div>
-                  </div>
-                </Wrapper>
-              </SidebarProvider>
-            </StoryProvider>
+                  </Wrapper>
+                </SidebarProvider>
+              </StoryProvider>
+            </Suspense>
           </AuthProvider>
           <Toaster />
         </ThemeProvider>

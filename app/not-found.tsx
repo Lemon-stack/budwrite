@@ -1,14 +1,12 @@
 "use client";
 
-import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
 import Link from "next/link";
-import Loading from "@/loading";
 
-function NotFoundContent() {
+export default function NotFound() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(3);
 
@@ -48,13 +46,5 @@ function NotFoundContent() {
         </Button>
       </div>
     </div>
-  );
-}
-
-export default function NotFound() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <NotFoundContent />
-    </Suspense>
   );
 }
