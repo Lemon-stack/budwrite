@@ -2,12 +2,15 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useStory } from "@/lib/contexts/StoryContext";
+import { useStory } from "@/context/StoryContext";
 import StoryForm from "@/components/dashboard/story-form";
 import { Loader2 } from "lucide-react";
 import Loading from "@/loading";
 import { toast } from "sonner";
-import { useStories } from "@/lib/hooks/useStories";
+import { useStories } from "@/hooks/useStories";
+import { useAuth } from "@/context/auth";
+import { useUrlState } from "@/hooks/use-url-state";
+import { usePathname } from "next/navigation";
 
 type GenerationStage =
   | "uploading"
@@ -16,7 +19,7 @@ type GenerationStage =
   | "saving"
   | "created";
 
-export default function DashboardPage() {
+export default function StoryFormPage() {
   const router = useRouter();
   const {
     generateNewStory,
@@ -26,8 +29,11 @@ export default function DashboardPage() {
     currentStage,
     currentStory,
   } = useStory();
+
+  const { setUrlState } = useUrlState();
   const [title, setTitle] = useState("");
   const { refresh } = useStories();
+  const { user, credits } = useAuth();
 
   const [maxTokens, setMaxTokens] = useState(2000);
   const [images, setImages] = useState<{ id: string; preview: string } | null>(
@@ -39,7 +45,7 @@ export default function DashboardPage() {
     if (currentStage === "created") {
       const timer = setTimeout(() => {
         clearInputs();
-        router.push(`/dashboard/story/${currentStory?.id}`);
+        router.push(`/story/${currentStory?.id}`);
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -66,11 +72,27 @@ export default function DashboardPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!images || !title) return;
+
+    // Check if user is authenticated
+    if (!user) {
+      setUrlState("signin", "chat");
+      return;
+    }
+
+    // Check if user has enough credits
+    if (!credits || credits < 2) {
+      toast.error("You don't have enough credits to create a story");
+      return;
+    }
+
+    // Validate form inputs
+    if (!images || !title) {
+      toast.error("Please provide both an image and a title");
+      return;
+    }
 
     try {
-      setTitle("");
-      setImages(null);
+      setUrlState("loading", "chat");
       clearInputs();
 
       const imageFile = await fetch(images.preview)
@@ -78,10 +100,11 @@ export default function DashboardPage() {
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
 
       await generateNewStory([imageFile], title, maxTokens);
+      setTitle("");
+      setImages(null);
       refresh();
     } catch (err) {
       toast.error(`We had issues with that request, please try again 😥`);
-      // console.error("Error creating story:", err);
     }
   };
 
@@ -95,7 +118,7 @@ export default function DashboardPage() {
     };
 
     return (
-      <div className="mx-auto h-dvh flex flex-col pt-20 relative">
+      <div className="mx-auto h-dvh flex flex-col pt-20 w-full bg-background top-0">
         <p className="text-center text-lg text-muted-foreground mb-6">
           {stageMessages[currentStage]}
         </p>
@@ -105,9 +128,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mx-auto h-dvh flex flex-col pt-16 relative">
-      <h2 className="text-4xl md:text-5xl font-bold text-center dark:text-slate-200 text-slate-700 mb-6">
-        What story do you want to create today?
+    <div className="mx-auto flex flex-col justify-center py-28 relative">
+      <h2 className="text-3xl md:text-4xl font-bold text-center dark:text-slate-200 text-slate-700 mb-8">
+        What story are you creating today?
       </h2>
 
       <StoryForm

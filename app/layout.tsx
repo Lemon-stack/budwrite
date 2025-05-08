@@ -1,11 +1,17 @@
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { StoryProvider } from "@/lib/contexts/StoryContext";
+import { StoryProvider } from "@/context/StoryContext";
 import { AuthProvider } from "@/context/auth";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "sonner";
+import DasboardSidebar from "@/components/dashboard/side-bar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Header } from "@/components/dashboard/header";
+import Wrapper from "@/components/wrapper";
+import Loading from "@/loading";
+import { Suspense } from "react";
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -41,9 +47,23 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <StoryProvider>
-              <main className="min-h-screen w-full h-full">{children}</main>
-            </StoryProvider>
+            <Suspense fallback={<Loading />}>
+              <StoryProvider>
+                <SidebarProvider>
+                  <Wrapper>
+                    <div className="flex flex-col flex-1 w-full">
+                      <Header />
+                      <div className="flex min-h-screen w-full">
+                        <DasboardSidebar />
+                        <main className="flex-1 p-4 md:p-6 overflow-auto">
+                          {children}
+                        </main>
+                      </div>
+                    </div>
+                  </Wrapper>
+                </SidebarProvider>
+              </StoryProvider>
+            </Suspense>
           </AuthProvider>
           <Toaster />
         </ThemeProvider>

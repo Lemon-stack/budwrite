@@ -3,10 +3,11 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { ImagePlus, Loader2, Send, X } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
+import { useUrlState } from "@/hooks/use-url-state";
 import {
   Select,
   SelectContent,
@@ -14,6 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
+import { TypewriterInput } from "../ui/typewriter-input";
+import { useState } from "react";
 
 interface StoryFormProps {
   handleSubmit: (e: React.FormEvent) => void;
@@ -42,44 +46,37 @@ export default function StoryForm({
   maxTokens,
   setMaxTokens,
 }: StoryFormProps) {
-  const { credits } = useAuth();
+  const { credits, user } = useAuth();
+  const { setUrlState } = useUrlState();
+  const router = useRouter();
 
   // Calculate if user can upload an image based on their credits
   // Each image costs 1 credit, and story generation costs 1 credit
-  const canUpload = (credits || 0) >= 2;
 
   const handleFileSelectWithCredits = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = e.target.files;
     if (!files) return;
-
-    if (!canUpload) {
-      toast.error("You don't have enough credits to create a story");
-      return;
-    }
-
+    // Let the file be selected - credit check will happen on form submission
     handleFileSelect(e);
   };
-
   return (
     <div className="w-full max-w-5xl mx-auto">
       <form onSubmit={handleSubmit} className="w-full">
-        <Card className="shadow-sm bg-purple-300/5">
+        <Card className="shadow-sm bg-primary-foreground rounded-xl">
           <CardContent className="pt-6">
             <div className="space-y-4">
               {/* Image upload section - horizontal layout */}
               <div className="flex items-center gap-3 overflow-x-auto pb-2">
                 {/* Upload button */}
                 <div
-                  className={`flex-shrink-0 h-16 w-16 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors ${
-                    canUpload && !images
+                  className={`flex-shrink-0 h-14 w-14 border-2 border-dashed rounded-xl border-muted-foreground flex items-center justify-center transition-colors ${
+                    !images
                       ? "cursor-pointer hover:bg-muted/50"
                       : "cursor-not-allowed opacity-50"
                   }`}
-                  onClick={() =>
-                    canUpload && !images && fileInputRef.current?.click()
-                  }
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   {isImageLoading ? (
                     <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
@@ -90,14 +87,14 @@ export default function StoryForm({
                     ref={fileInputRef}
                     type="file"
                     accept="image/png,image/jpeg,image/jpg,image/webp"
-                    onChange={handleFileSelectWithCredits}
+                    onChange={handleFileSelect}
                     className="hidden"
                   />
                 </div>
 
                 {/* Image preview */}
                 {images && (
-                  <div className="relative flex-shrink-0 h-16 w-16 rounded-lg overflow-hidden group">
+                  <div className="relative flex-shrink-0 h-14 w-14 rounded-lg overflow-hidden group">
                     <img
                       src={images.preview || "/placeholder.svg"}
                       alt="Preview"
@@ -133,12 +130,14 @@ export default function StoryForm({
                   <Label htmlFor="title" className="sr-only">
                     Story Title
                   </Label>
-                  <Input
+                  <TypewriterInput
                     id="title"
-                    placeholder="Enter your story title..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full"
+                    className="w-full rounded-xl text-base bg-primary-foreground placeholder:text-muted-foreground placeholder:text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                    typingSpeed={70}
+                    erasingSpeed={70}
+                    delayBetweenSentences={1500}
                   />
                 </div>
                 <div className="w-full sm:w-auto">
@@ -146,10 +145,10 @@ export default function StoryForm({
                     value={maxTokens.toString()}
                     onValueChange={(value) => setMaxTokens(parseInt(value))}
                   >
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <SelectValue placeholder="Story Length" />
+                    <SelectTrigger className="w-full bg-primary-foreground border-border focus-visible:ring-0 focus-visible:ring-offset-0 sm:w-[180px]">
+                      <SelectValue>Short Story (2 Credits)</SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-primary-foreground">
                       <SelectItem value="3000">
                         Short Story (2 Credits)
                       </SelectItem>
@@ -172,9 +171,7 @@ export default function StoryForm({
                 <Button
                   type="submit"
                   className="w-full sm:w-auto bg-purple-500 hover:bg-purple-600 gap-2"
-                  disabled={
-                    isSubmitting || !images || !title.trim() || !canUpload
-                  }
+                  disabled={isSubmitting || !images || !title.trim()}
                 >
                   {isSubmitting ? (
                     <>
@@ -184,7 +181,6 @@ export default function StoryForm({
                   ) : (
                     <>
                       <Send className="h-4 w-4" />
-                      Generate
                     </>
                   )}
                 </Button>

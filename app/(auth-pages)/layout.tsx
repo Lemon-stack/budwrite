@@ -28,7 +28,7 @@ export default async function AuthLayout({
   const isForgotPassword = pathname.includes("forgot-password");
 
   return (
-    <div className="min-h-screen h-dvh bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen h-dvh fixed z-30 inset-0 bg-background">
       {/* Content columns */}
       <Toaster />
       <div

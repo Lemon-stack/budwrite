@@ -8,7 +8,7 @@ import Link from "next/link";
 export default function SignIn() {
   return (
     <div className="w-full max-w-md">
-      <div className="w-full p-8 space-y-6 transition-all duration-300 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800">
+      <div className="w-full p-8 space-y-6 transition-all duration-300 bg-background">
         <div className="flex flex-col items-center text-center space-y-2 mb-4 animate-fadeIn">
           <div className="mb-2">
             <Logo text="hidden" />
