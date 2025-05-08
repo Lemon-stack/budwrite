@@ -103,7 +103,15 @@ export function useStories() {
         return newSet;
       });
 
-      setStories((prev) => [...prev, ...newStories]);
+      // Ensure we don't add duplicate stories by checking against existing stories
+      setStories((prev) => {
+        const existingIds = new Set(prev.map((story) => story.id));
+        const uniqueNewStories = newStories.filter(
+          (story) => !existingIds.has(story.id)
+        );
+        return [...prev, ...uniqueNewStories];
+      });
+
       setHasMore(data.length === pageSize);
       setPage((prev) => prev + 1);
     } catch (err) {
