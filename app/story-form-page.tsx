@@ -92,8 +92,7 @@ export default function StoryFormPage() {
     }
 
     try {
-      setTitle("");
-      setImages(null);
+      setUrlState("loading", "chat");
       clearInputs();
 
       const imageFile = await fetch(images.preview)
@@ -101,6 +100,8 @@ export default function StoryFormPage() {
         .then((blob) => new File([blob], "image.jpg", { type: "image/jpeg" }));
 
       await generateNewStory([imageFile], title, maxTokens);
+      setTitle("");
+      setImages(null);
       refresh();
     } catch (err) {
       toast.error(`We had issues with that request, please try again 😥`);
@@ -117,7 +118,7 @@ export default function StoryFormPage() {
     };
 
     return (
-      <div className="mx-auto h-dvh flex flex-col pt-20 relative">
+      <div className="mx-auto h-dvh flex flex-col pt-20 w-full bg-background top-0">
         <p className="text-center text-lg text-muted-foreground mb-6">
           {stageMessages[currentStage]}
         </p>

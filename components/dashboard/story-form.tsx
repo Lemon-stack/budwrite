@@ -3,7 +3,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { ImagePlus, Loader2, Send, X } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth";
 import { toast } from "sonner";
@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { TypewriterInput } from "../ui/typewriter-input";
+import { useState } from "react";
 
 interface StoryFormProps {
   handleSubmit: (e: React.FormEvent) => void;
@@ -59,7 +61,6 @@ export default function StoryForm({
     // Let the file be selected - credit check will happen on form submission
     handleFileSelect(e);
   };
-
   return (
     <div className="w-full max-w-5xl mx-auto">
       <form onSubmit={handleSubmit} className="w-full">
@@ -129,12 +130,14 @@ export default function StoryForm({
                   <Label htmlFor="title" className="sr-only">
                     Story Title
                   </Label>
-                  <Input
+                  <TypewriterInput
                     id="title"
-                    placeholder="Enter your story title..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full rounded-xl text-base bg-primary-foreground placeholder:text-muted-foreground placeholder:text-sm border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                    typingSpeed={70}
+                    erasingSpeed={70}
+                    delayBetweenSentences={1500}
                   />
                 </div>
                 <div className="w-full sm:w-auto">
