@@ -79,17 +79,17 @@ export function TypewriterInput({
     );
   }, [displayValue, isTyping]);
 
-  // Update cursor position whenever display value changes
+  // Update cursor position when display value or typing state changes
   useEffect(() => {
     if (!showPlaceholder) return; // Only update cursor position when placeholder is visible
 
-    // Small delay to ensure DOM is updated
+    // Use a timeout to ensure DOM is updated
     const timer = setTimeout(() => {
       setCursorPosition(calculateCursorPosition());
     }, 10);
 
     return () => clearTimeout(timer);
-  }, [calculateCursorPosition, showPlaceholder]);
+  }, [displayValue, isTyping, showPlaceholder, calculateCursorPosition]);
 
   // Clear any existing timers when component unmounts
   useEffect(() => {
@@ -99,14 +99,6 @@ export function TypewriterInput({
       }
     };
   }, []);
-
-  // Focus the input and set cursor position
-  // const focusAndSetCursor = (position: number) => {
-  //   if (inputRef.current) {
-  //     inputRef.current.focus()
-  //     inputRef.current.setSelectionRange(position, position)
-  //   }
-  // }
 
   // Main typewriter effect logic
   useEffect(() => {
@@ -251,11 +243,6 @@ export function TypewriterInput({
       } as React.ChangeEvent<HTMLInputElement>;
       onChange(event);
     }
-
-    // Update cursor position after a small delay
-    setTimeout(() => {
-      setCursorPosition(calculateCursorPosition());
-    }, 10);
   };
 
   // Handle focus events
@@ -292,11 +279,6 @@ export function TypewriterInput({
     if (props.onClick) {
       props.onClick(e);
     }
-
-    // Update cursor position after a small delay
-    setTimeout(() => {
-      setCursorPosition(calculateCursorPosition());
-    }, 10);
   };
 
   // Default cursor icon if none provided

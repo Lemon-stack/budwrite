@@ -28,7 +28,7 @@ export default function StoryCard({ story }: { story: any }) {
         </div>
         {/* like and dislike buttons */}
         {user && (
-          <div className="flex items-center gap-2 ml-auto">
+          <div className=" items-center hidden gap-2 ml-auto">
             <button className="size-6 rounded-full bg-background text-muted-foreground">
               <ThumbsUp className="size-4" />
             </button>
