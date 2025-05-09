@@ -9,6 +9,11 @@ import {
   Star,
   User,
   Wand2,
+  Github,
+  Twitter,
+  Linkedin,
+  Mail,
+  HelpCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -33,13 +38,19 @@ import Logo from "../logo";
 import { StoryHistory } from "./story-history";
 import { UserCard } from "./user-card";
 import { useAuth } from "@/context/auth";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 // Navigation items for the sidebar
 const navItems = [
   {
     title: "Home",
     icon: Home,
-    href: "/dashboard",
+    href: "/",
   },
   // {
   //   title: "Favorites",
@@ -49,7 +60,26 @@ const navItems = [
   {
     title: "Settings",
     icon: Settings,
-    href: "/dashboard/settings",
+    href: "/settings",
+  },
+];
+
+// Social links for the accordion
+const socialLinks = [
+  {
+    title: "Twitter",
+    icon: Twitter,
+    href: "https://twitter.com/lemonconfidence",
+  },
+  {
+    title: "LinkedIn",
+    icon: Linkedin,
+    href: "https://linkedin.com/in/lemonconfidence",
+  },
+  {
+    title: "Email",
+    icon: Mail,
+    href: "mailto:lemonconfidence101@gmail.com",
   },
 ];
 
@@ -82,6 +112,39 @@ export default function DasboardSidebar() {
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
+              {/* socials */}
+              <Accordion type="single" collapsible className="w-full py-0">
+                <AccordionItem
+                  value="social-links"
+                  className="border-none py-0 px-2"
+                >
+                  <AccordionTrigger className="pb-2 hover:no-underline">
+                    <div className="flex items-center gap-2">
+                      <HelpCircle className="h-4 w-4" />
+                      <span>Quick support</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <SidebarMenu>
+                      {socialLinks.map((link) => (
+                        <SidebarMenuItem key={link.title}>
+                          <SidebarMenuButton asChild>
+                            <a
+                              href={link.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2"
+                            >
+                              <link.icon className="h-4 w-4" />
+                              <span>{link.title}</span>
+                            </a>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </SidebarGroupContent>
           </SidebarGroup>
 

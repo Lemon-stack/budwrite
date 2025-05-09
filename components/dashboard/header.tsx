@@ -1,9 +1,8 @@
 "use client";
 
-import { Bell, Search, Wifi } from "lucide-react";
+import { Bell, Wifi } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
@@ -13,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeSwitcher } from "../theme-switcher";
 import Link from "next/link";
 import { useAuth } from "@/context/auth";
@@ -64,31 +62,24 @@ export function Header() {
           <Bell className="h-5 w-5" />
           <span className="sr-only">Notifications</span>
         </Button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-              <Avatar className="h-9 w-9">
-                <AvatarImage
-                  src="/placeholder.svg?height=36&width=36"
-                  alt="User"
-                />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/settings">Settings</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="hover:cursor-pointer" asChild>
+              <span className="size-6 rounded-full bg-[radial-gradient(circle_at_30%_30%,_#f5f3ff_0%,_#ede9fe_25%,_#c4b5fd_50%,_#a78bfa_75%,_#7c3aed_100%)] shadow-lg" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/settings">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => signOut()}>
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <NetworkStatusDialog
