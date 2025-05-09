@@ -140,50 +140,48 @@ export default function StoryForm({
                     delayBetweenSentences={1500}
                   />
                 </div>
-                <div className="w-full sm:w-auto">
-                  <Select
-                    value={maxTokens.toString()}
-                    onValueChange={(value) => setMaxTokens(parseInt(value))}
-                  >
-                    <SelectTrigger className="w-full bg-primary-foreground border-border focus-visible:ring-0 focus-visible:ring-offset-0 sm:w-[180px]">
-                      <SelectValue>Short Story (2 Credits)</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="bg-primary-foreground">
-                      <SelectItem value="3000">
-                        Short Story (2 Credits)
-                      </SelectItem>
 
-                      <SelectItem
-                        value="9000"
-                        disabled={!credits || credits < 6}
-                      >
-                        Cool Story (6 Credits)
-                      </SelectItem>
-                      <SelectItem
-                        value="13000"
-                        disabled={!credits || credits < 8}
-                      >
-                        Epic Story (8 Credits)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full sm:w-auto bg-purple-500 hover:bg-purple-600 gap-2"
-                  disabled={isSubmitting || !images || !title.trim()}
-                >
-                  {isSubmitting ? (
-                    <>
+                <div className="flex items-center gap-2 sm:w-auto ml-auto">
+                  <div className="w-full sm:w-auto">
+                    <Select
+                      value={maxTokens.toString()}
+                      onValueChange={(value) => setMaxTokens(parseInt(value))}
+                    >
+                      <SelectTrigger className="w-full bg-primary-foreground border-border focus-visible:ring-0 focus-visible:ring-offset-0 sm:w-[180px]">
+                        <SelectValue>Short Story (2 Credits)</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-primary-foreground">
+                        <SelectItem value="3000">
+                          Short Story (2 Credits)
+                        </SelectItem>
+
+                        <SelectItem
+                          value="9000"
+                          disabled={!credits || credits < 6}
+                        >
+                          Cool Story (6 Credits)
+                        </SelectItem>
+                        <SelectItem
+                          value="13000"
+                          disabled={!credits || credits < 8}
+                        >
+                          Epic Story (8 Credits)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-14 bg-purple-500 hover:bg-purple-600 gap-2"
+                    disabled={isSubmitting || !images || !title.trim()}
+                  >
+                    {isSubmitting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
+                    ) : (
                       <Send className="h-4 w-4" />
-                    </>
-                  )}
-                </Button>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>

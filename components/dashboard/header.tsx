@@ -39,13 +39,15 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-primary-foreground px-4 md:px-6">
-      <Logo />
-      {user && (
-        <>
-          <SidebarTrigger className="-ml-2" />
-          <Separator orientation="vertical" className="h-6" />
-        </>
-      )}
+      <div className="flex flex-row-reverse items-center gap-2">
+        <Logo />
+        {user && (
+          <div className="flex items-center gap-2">
+            <SidebarTrigger />
+            <Separator orientation="vertical" className="h-6" />
+          </div>
+        )}
+      </div>
 
       <div className="ml-auto flex items-center gap-2">
         <Button

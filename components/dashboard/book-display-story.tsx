@@ -25,7 +25,7 @@ export default function BookDisplayStory({
     return (
       <div
         className={cn(
-          "w-full max-w-4xl mx-auto bg-white rounded-lg shadow-lg px-4 py-6",
+          "w-full max-w-4xl mx-auto bg-background text-foreground rounded-lg shadow-lg px-4 py-6",
           className
         )}
       >
@@ -41,7 +41,14 @@ export default function BookDisplayStory({
         </div>
         <div className="space-y-6">
           {pages.map((page, index) => (
-            <div key={index} className="text-gray-900">
+            <div key={index} className="relative">
+              {(index + 1) % 4 === 0 && index < pages.length - 1 && (
+                <div className="relative border-t border-dashed border-gray-300 my-6">
+                  <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-background px-2 text-sm text-gray-500">
+                    {(index + 1) / 4}
+                  </span>
+                </div>
+              )}
               <p className="text-base leading-relaxed break-words whitespace-pre-wrap">
                 {page}
               </p>
