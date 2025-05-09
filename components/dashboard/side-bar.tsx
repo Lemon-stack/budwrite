@@ -1,23 +1,8 @@
 "use client";
 
-import {
-  BookOpen,
-  ChevronRight,
-  Home,
-  PenSquare,
-  Settings,
-  Star,
-  User,
-  Wand2,
-  Github,
-  Twitter,
-  Linkedin,
-  Mail,
-  HelpCircle,
-} from "lucide-react";
+import { Home, Settings, Twitter, Linkedin, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
   Sidebar,
@@ -26,15 +11,12 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import Logo from "../logo";
 import { StoryHistory } from "./story-history";
 import { UserCard } from "./user-card";
 import { useAuth } from "@/context/auth";
@@ -75,11 +57,6 @@ const socialLinks = [
     title: "LinkedIn",
     icon: Linkedin,
     href: "https://linkedin.com/in/lemonconfidence",
-  },
-  {
-    title: "Email",
-    icon: Mail,
-    href: "mailto:lemonconfidence101@gmail.com",
   },
 ];
 
