@@ -35,13 +35,13 @@ export default function NotFound() {
           The page you're looking for doesn't exist or has been moved.
         </p>
         <p className="text-sm text-muted-foreground">
-          Redirecting to dashboard in {countdown}{" "}
+          Redirecting to home in {countdown}{" "}
           {countdown === 1 ? "second" : "seconds"}...
         </p>
         <Button asChild>
-          <Link href="/dashboard" className="gap-2">
+          <Link href="/" className="gap-2">
             <Home className="h-4 w-4" />
-            Go to Dashboard
+            Go back to home
           </Link>
         </Button>
       </div>

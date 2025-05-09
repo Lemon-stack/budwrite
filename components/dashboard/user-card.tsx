@@ -53,7 +53,7 @@ export function UserCard({
               )}
             </div>
           </div>
-          <Link href="/dashboard/settings#credits-pay" className="w-full mt-4">
+          <Link href="/settings#credits-pay" className="w-full mt-4">
             <Button
               variant={isLowCredits ? "destructive" : "outline"}
               size="sm"

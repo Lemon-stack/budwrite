@@ -18,7 +18,7 @@ export default async function AuthLayout({
   } = await supabase.auth.getSession();
 
   if (session) {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   // Get the current pathname to determine which page we're on

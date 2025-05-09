@@ -220,7 +220,7 @@ export default function StoryPage({ params }: Props) {
           The story you're looking for doesn't exist or has been removed.
         </p>
         <Button asChild>
-          <Link href="/dashboard">Return Home</Link>
+          <Link href="/">Return Home</Link>
         </Button>
       </div>
     );
@@ -230,7 +230,7 @@ export default function StoryPage({ params }: Props) {
     <div className="max-w-4xl mx-auto px-4">
       <div className="flex items-center gap-2 mb-6">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/dashboard">
+          <Link href="/">
             <ChevronLeft className="h-5 w-5" />
             <span className="sr-only">Back to Dashboard</span>
           </Link>

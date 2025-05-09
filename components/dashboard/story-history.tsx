@@ -139,7 +139,7 @@ export function StoryHistory() {
             {story.image && (
               <div
                 className="w-16 h-16 relative rounded-md overflow-hidden flex-shrink-0 cursor-pointer"
-                onClick={() => router.push(`/dashboard/story/${story.id}`)}
+                onClick={() => router.push(`/story/${story.id}`)}
               >
                 <img
                   src={story.image}
@@ -150,7 +150,7 @@ export function StoryHistory() {
             )}
             <div
               className="flex-1 min-w-0 cursor-pointer"
-              onClick={() => router.push(`/dashboard/story/${story.id}`)}
+              onClick={() => router.push(`/story/${story.id}`)}
             >
               <h3 className="font-medium text-sm">{story.title}</h3>
               <p className="text-xs text-muted-foreground mb-1">
