@@ -22,7 +22,6 @@ export default function Home() {
             icon="size-6"
             text="text-2xl"
             showCaption={true}
-            animation={true}
           />
         </div>
       </div>

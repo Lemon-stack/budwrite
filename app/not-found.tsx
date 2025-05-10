@@ -22,7 +22,7 @@ export default function NotFound() {
   // Handle navigation when countdown reaches 0
   useEffect(() => {
     if (countdown === 0) {
-      router.push("/");
+      router.push("/home");
     }
   }, [countdown, router]);
 

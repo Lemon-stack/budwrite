@@ -81,7 +81,7 @@ export function useWriting(id?: string) {
 
       // If this was a new writing, redirect to the permanent URL
       if (!writing.id) {
-        router.replace(`/w/${writingId}`);
+        router.replace(`/home/w/${writingId}`);
       }
 
       return true;
