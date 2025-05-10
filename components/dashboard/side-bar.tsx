@@ -26,7 +26,6 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { UserCard } from "./user-card";
 import { useAuth } from "@/context/auth";
 import {
   Accordion,
@@ -34,8 +33,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Logo from "../logo";
 import { WritingHistory } from "./writing-history";
+import Logo from "../logo";
 
 // Navigation items for the sidebar
 const navItems = [
@@ -109,7 +108,6 @@ export default function DasboardSidebar() {
           <SidebarSeparator />
         </div>
 
-        {/* Fixed Story History Label */}
         <div className="flex-none">
           <SidebarGroup className="py-0">
             <SidebarGroupLabel className="flex py-0 justify-start gap-2 items-center">
@@ -119,7 +117,6 @@ export default function DasboardSidebar() {
           </SidebarGroup>
         </div>
 
-        {/* Scrollable Story History Content */}
         <div className="flex-1 overflow-auto">
           <SidebarGroup>
             <SidebarGroupContent>

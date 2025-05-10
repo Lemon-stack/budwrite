@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import { createClient } from "@/utils/supabase/server";
 import crypto from "crypto";
 
 // Store OTPs in memory (in production, use Redis or similar)

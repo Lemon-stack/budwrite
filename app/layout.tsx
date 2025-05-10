@@ -1,14 +1,12 @@
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { StoryProvider } from "@/context/StoryContext";
 import { AuthProvider } from "@/context/auth";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "sonner";
 import DasboardSidebar from "@/components/dashboard/side-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Header } from "@/components/dashboard/header";
 import Wrapper from "@/components/wrapper";
 import Loading from "@/loading";
 import { Suspense } from "react";
@@ -25,8 +23,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "PictoStory",
-  description: "Generate stories from your images",
+  title: "Yappwrite",
+  description: "Write great stuff while yapping",
   icons: {
     icon: "/favicon.ico",
   },
@@ -48,15 +46,13 @@ export default function RootLayout({
         >
           <AuthProvider>
             <Suspense fallback={<Loading />}>
-              <StoryProvider>
-                <SidebarProvider>
-                  <Wrapper>
-                    <main className="flex-1 p-4 relative md:p-6 overflow-auto">
-                      {children}
-                    </main>
-                  </Wrapper>
-                </SidebarProvider>
-              </StoryProvider>
+              <SidebarProvider>
+                <Wrapper>
+                  <main className="flex-1 p-4 relative md:p-6 overflow-auto">
+                    {children}
+                  </main>
+                </Wrapper>
+              </SidebarProvider>
             </Suspense>
           </AuthProvider>
           <Toaster />
