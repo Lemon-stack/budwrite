@@ -2,9 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "CustomFont";
+  src: url("/fonts/HedvigLettersSans-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 @layer base {
   :root {
     --font-geist: var(--font-geist);
+    --font-custom: "CustomFont";
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -82,7 +90,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-geist);
+    font-family: var(--font-custom);
   }
 }
 

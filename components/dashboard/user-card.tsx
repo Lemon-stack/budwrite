@@ -5,22 +5,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useAuth } from "@/context/auth";
 import { Button } from "../ui/button";
-import { Sparkles } from "lucide-react";
+import { Crown } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
 
 interface UserCardProps {
-  planType?: "Free" | "Pro" | "Enterprise";
+  planType?: "free" | "pro";
   onCreateStory?: () => void;
 }
 
 export function UserCard({
-  planType = "Free",
+  planType = "free",
   onCreateStory = () => console.log("Create story clicked"),
 }: UserCardProps) {
-  const { user, credits } = useAuth();
+  const { user } = useAuth();
   const [displayName, setDisplayName] = useState<string>("");
-  const isLowCredits = credits !== null && credits < 2;
 
   useEffect(() => {
     if (user) {
@@ -42,26 +41,25 @@ export function UserCard({
             </span>
             <div className="flex items-center mt-1">
               <Badge
-                variant={isLowCredits ? "destructive" : "default"}
+                variant={planType === "pro" ? "default" : "secondary"}
                 className="text-sm flex rounded-sm items-center justify-between"
               >
-                <Sparkles className="h-4 w-4 text-purple-500 mr-2" />
-                {credits} credits
+                <Crown className="h-4 w-4 text-yellow-500 mr-2" />
+                {planType === "pro" ? "Pro Plan" : "Free Plan"}
               </Badge>
-              {isLowCredits && (
-                <span className="ml-2 text-sm text-red-500">Low credits</span>
-              )}
             </div>
           </div>
-          <Link href="/settings#credits-pay" className="w-full mt-4">
-            <Button
-              variant={isLowCredits ? "destructive" : "outline"}
-              size="sm"
-              className="text-base w-full px-3 py-3 bg-purple-500 text-white"
-            >
-              Get More Credits
-            </Button>
-          </Link>
+          {planType === "free" && (
+            <Link href="/settings#subscription" className="w-full mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-base w-full px-3 py-3 bg-purple-500 text-white"
+              >
+                Upgrade to Pro
+              </Button>
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>

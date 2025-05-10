@@ -1,11 +1,13 @@
-import StoryFormPage from "./story-form-page";
-import CommunityCreationsPage from "./community/page";
-export default function HomePage() {
-  return (
-    <div className="flex flex-col gap-12">
-      <StoryFormPage />
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-      <CommunityCreationsPage />
+export default function LandingPage() {
+  return (
+    <div>
+      LandingPage
+      <Link href="/signin">
+        <Button>Continue</Button>
+      </Link>
     </div>
   );
 }

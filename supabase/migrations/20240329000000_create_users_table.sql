@@ -3,9 +3,12 @@ CREATE TABLE users (
     id UUID PRIMARY KEY REFERENCES auth.users(id),
     email TEXT NOT NULL,
     userName TEXT NOT NULL,
-    userType TEXT NOT NULL,
+    userType TEXT NOT NULL DEFAULT 'free',
+    subscriptionId TEXT,
+    subscriptionStatus TEXT,
+    subscriptionEndDate TIMESTAMPTZ,
     createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    credits INT NOT NULL DEFAULT 2
+    isOnboarded BOOLEAN NOT NULL DEFAULT false
 );
 
 -- Enable RLS

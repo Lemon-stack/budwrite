@@ -1,162 +1,161 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { auth } from "@/lib/firebase";
+import {
+  User as FirebaseUser,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { toast } from "sonner";
 
 interface User {
   id: string;
   email: string;
   userName: string;
+  userType: "free" | "pro";
+  subscriptionId?: string;
+  subscriptionStatus?: string;
+  subscriptionEndDate?: string;
   isOnboarded: boolean;
   createdAt: string;
-  credits: number;
 }
 
 interface AuthContextType {
   user: User | null;
+  firebaseUser: FirebaseUser | null;
   isLoading: boolean;
-  supabase: ReturnType<typeof createClient>;
-  credits: number | null;
-  refreshCredits: () => Promise<void>;
+  error: string | null;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  refreshSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [credits, setCredits] = useState<number | null>(null);
-  const supabase = createClient();
-
-  const refreshCredits = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("users")
-      .select("credits")
-      .eq("id", user.id)
-      .single();
-    setCredits(data?.credits ?? 0);
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setCredits(null);
-  };
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAndCreateUser = async () => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
+        setFirebaseUser(firebaseUser);
+        setError(null);
 
-        if (sessionError) {
-          throw sessionError;
-        }
-
-        if (session?.user) {
-          const { data: existingUser, error: fetchError } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
-          if (fetchError) {
-            if (fetchError.code === "PGRST116") {
-              const { data: newUser, error: createError } = await supabase
-                .from("users")
-                .upsert(
-                  [
-                    {
-                      id: session.user.id,
-                      email: session.user.email,
-                      userName: session.user.email?.split("@")[0],
-                      createdAt: new Date().toISOString(),
-                      credits: 2,
-                      isOnboarded: false,
-                    },
-                  ],
-                  {
-                    onConflict: "id",
-                  }
-                )
-                .select()
-                .single();
-              // console.log("newUser", newUser, createError);
-              if (createError) {
-                throw createError;
-              }
-
-              if (!newUser) {
-                const { data: fetchedUser, error: fetchError } = await supabase
-                  .from("users")
-                  .select("*")
-                  .eq("id", session.user.id)
-                  .single();
-
-                if (fetchError) {
-                  throw fetchError;
-                }
-
-                setUser(fetchedUser);
-                setCredits(fetchedUser.credits);
-              } else {
-                setUser(newUser);
-                setCredits(newUser.credits);
-              }
-            } else {
-              throw fetchError;
-            }
-          } else if (existingUser) {
-            setUser(existingUser);
-            setCredits(existingUser.credits);
-          }
+        if (firebaseUser) {
+          // Create user object from Firebase user
+          const userData: User = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email!,
+            userName:
+              firebaseUser.displayName || firebaseUser.email?.split("@")[0]!,
+            userType: "free", // Default to free tier
+            isOnboarded: false,
+            createdAt: new Date().toISOString(),
+          };
+          setUser(userData);
         } else {
           setUser(null);
-          setCredits(null);
         }
-      } catch (error) {
-        setUser(null);
-        setCredits(null);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "An error occurred";
+        setError(errorMessage);
+        toast.error("Authentication Error", {
+          description: errorMessage,
+        });
       } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAndCreateUser();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        checkAndCreateUser();
-      } else {
-        setUser(null);
-        setCredits(null);
         setIsLoading(false);
       }
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
+
+  const signInWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      const error = err as { code: string; message: string };
+      setError(error.message);
+      toast.error("Sign In Failed", {
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await firebaseSignOut(auth);
+      setUser(null);
+      toast.success("Signed Out", {
+        description: "You have been signed out successfully.",
+      });
+    } catch (err) {
+      const error = err as { code: string; message: string };
+      setError(error.message);
+      toast.error("Sign Out Failed", {
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshSubscription = async () => {
+    if (!user) return;
+    try {
+      setIsLoading(true);
+      setError(null);
+      // TODO: Implement subscription refresh logic
+      // This will need to be implemented based on your subscription service
+      toast.success("Subscription Updated", {
+        description: "Your subscription status has been updated.",
+      });
+    } catch (err) {
+      const error = err as { code: string; message: string };
+      setError(error.message);
+      toast.error("Subscription Update Failed", {
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, supabase, credits, refreshCredits, signOut }}
+      value={{
+        user,
+        firebaseUser,
+        isLoading,
+        error,
+        signInWithGoogle,
+        signOut,
+        refreshSubscription,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-};
+}

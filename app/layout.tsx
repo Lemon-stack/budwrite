@@ -51,15 +51,9 @@ export default function RootLayout({
               <StoryProvider>
                 <SidebarProvider>
                   <Wrapper>
-                    <div className="flex flex-col flex-1 w-full">
-                      <Header />
-                      <div className="flex min-h-screen w-full">
-                        <DasboardSidebar />
-                        <main className="flex-1 p-4 md:p-6 overflow-auto">
-                          {children}
-                        </main>
-                      </div>
-                    </div>
+                    <main className="flex-1 p-4 relative md:p-6 overflow-auto">
+                      {children}
+                    </main>
                   </Wrapper>
                 </SidebarProvider>
               </StoryProvider>
